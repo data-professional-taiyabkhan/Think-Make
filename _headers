@@ -1,0 +1,10 @@
+# Cloudflare Pages custom headers.
+# Every reference to assets/ in index.html carries a ?v=N cache-busting
+# query string (see index.html) -- when content changes, the version bumps
+# and the URL changes with it. That makes it safe to cache assets/ as long
+# and as aggressively as possible; there is no way to serve stale content
+# through a URL that changed. index.html itself is left on Cloudflare
+# Pages' default (revalidate every time) so a fresh deploy is always seen
+# immediately.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
