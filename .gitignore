@@ -1,0 +1,7 @@
+# Raw source material — large (900MB+), individual files exceed GitHub's 100MB
+# limit, and it's not meant to be public. tools/build-assets.ps1 derives
+# assets/ from this; keep it locally, back it up separately if needed.
+source-assets/
+
+# Phase 0 scratch frames used to build ASSET-INVENTORY.md — not deployable.
+probe/
