@@ -40,6 +40,7 @@
     beatEl.style.visibility = 'visible';
     videosIn(beatEl).forEach(function (v) {
       if (!v.src && v.dataset.src) v.src = v.dataset.src;
+      if (!v.paused) return;
       var p = v.play();
       if (p && p.catch) p.catch(function () {});
     });
@@ -48,10 +49,30 @@
   function deactivate(beatEl) {
     beatEl.style.visibility = 'hidden';
     beatEl.style.opacity = 0;
-    videosIn(beatEl).forEach(function (v) { v.pause(); });
+    videosIn(beatEl).forEach(function (v) { if (!v.paused) v.pause(); });
   }
 
   var currentIndex = -1;
+
+  // Hysteresis around each boundary: once a beat is active, its effective
+  // range is padded a little so scroll position hovering right at a
+  // boundary (very common mid-reversal, since scrub easing overshoots
+  // before settling) doesn't flip activate()/deactivate() back and forth
+  // on the same videos every frame -- that thrashing was the source of
+  // the "glitchy on scroll-up" reports.
+  var BOUNDARY_MARGIN = 0.006;
+
+  function resolveBeatIndex(progress) {
+    if (currentIndex >= 0) {
+      var lo = bounds[currentIndex] - (currentIndex > 0 ? BOUNDARY_MARGIN : 0);
+      var hi = bounds[currentIndex + 1] + (currentIndex < bounds.length - 2 ? BOUNDARY_MARGIN : 0);
+      if (progress >= lo && progress < hi) return currentIndex;
+    }
+    for (var i = 0; i < bounds.length - 1; i++) {
+      if (progress >= bounds[i] && progress < bounds[i + 1]) return i;
+    }
+    return bounds.length - 2;
+  }
 
   function renderBeat1(el, t) {
     var layers = el.querySelectorAll('.story-layer');
@@ -117,10 +138,7 @@
   var renderers = [renderBeat1, renderBeat2, function (el, t) { renderBloomClip(el, t, 'story-hero-clip'); }, renderBeat4, renderBeat5];
 
   function render(progress) {
-    var idx = bounds.length - 2;
-    for (var i = 0; i < bounds.length - 1; i++) {
-      if (progress >= bounds[i] && progress < bounds[i + 1]) { idx = i; break; }
-    }
+    var idx = resolveBeatIndex(progress);
 
     if (idx !== currentIndex) {
       if (currentIndex >= 0) deactivate(beats[currentIndex]);

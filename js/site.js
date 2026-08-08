@@ -67,14 +67,23 @@
       tile.classList.remove('is-playing');
     }
 
-    trigger.addEventListener('mouseenter', play);
-    trigger.addEventListener('mouseleave', pause);
+    // Touch devices synthesize a mouseenter immediately before click, so
+    // wiring both unconditionally meant a tap would play() then instantly
+    // toggle back to pause() -- the video never visibly played. Hover
+    // controls playback only where real hover exists; tap/click is the
+    // sole toggle everywhere else.
+    var hasHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+    if (hasHover) {
+      trigger.addEventListener('mouseenter', play);
+      trigger.addEventListener('mouseleave', pause);
+    } else {
+      trigger.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (tile.classList.contains('is-playing')) pause(); else play();
+      });
+    }
     trigger.addEventListener('focus', play);
     trigger.addEventListener('blur', pause);
-    trigger.addEventListener('click', function (e) {
-      e.preventDefault();
-      if (tile.classList.contains('is-playing')) pause(); else play();
-    });
   });
 
   /* ---------------------------------------------------------------------
