@@ -13,15 +13,33 @@
 (function () {
   'use strict';
 
+  // If the GSAP CDN fails to load for any reason (network hiccup, ad
+  // blocker, corporate firewall), the pinned 600vh spacer would otherwise
+  // sit there with its beats permanently invisible -- since only this
+  // script ever makes a beat visible, a script that never runs leaves a
+  // multi-screen blank void the visitor has to scroll through and it
+  // looks/feels completely stuck. Fall back to the same static, unpinned
+  // stacked-beats view the reduced-motion path uses.
+  function showStaticFallback() {
+    var spacerEl = document.querySelector('.story__spacer');
+    var stageEl = document.querySelector('.story__stage');
+    var staticEl = document.querySelector('.story__static');
+    if (spacerEl) spacerEl.style.height = 'auto';
+    if (stageEl) stageEl.style.display = 'none';
+    if (staticEl) staticEl.style.display = 'block';
+  }
+
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) return;
-  if (!window.gsap || !window.ScrollTrigger) return;
-
-  gsap.registerPlugin(ScrollTrigger);
+  if (!window.gsap || !window.ScrollTrigger) { showStaticFallback(); return; }
 
   var stage = document.querySelector('.story__stage');
   var spacer = document.querySelector('.story__spacer');
-  if (!stage || !spacer) return;
+  if (!stage || !spacer) { showStaticFallback(); return; }
+
+  try {
+
+  gsap.registerPlugin(ScrollTrigger);
 
   var beats = Array.prototype.slice.call(stage.querySelectorAll('.beat'));
   var hudTc = document.getElementById('hudTc');
@@ -172,4 +190,13 @@
 
   // First beat should be visible/playing at rest, before any scroll.
   render(0);
+
+  } catch (err) {
+    // Any unexpected runtime error here would otherwise leave the pinned
+    // section half-initialized -- pinned, but with no beat ever made
+    // visible. Fail safe to the static fallback instead of a stuck blank
+    // scroll, and surface the real error so it's diagnosable.
+    console.error('[story.js] falling back to static view after error:', err);
+    showStaticFallback();
+  }
 })();

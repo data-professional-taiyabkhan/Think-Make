@@ -68,20 +68,33 @@
     }
 
     // Touch devices synthesize a mouseenter immediately before click, so
-    // wiring both unconditionally meant a tap would play() then instantly
-    // toggle back to pause() -- the video never visibly played. Hover
-    // controls playback only where real hover exists; tap/click is the
-    // sole toggle everywhere else.
-    var hasHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
-    if (hasHover) {
-      trigger.addEventListener('mouseenter', play);
-      trigger.addEventListener('mouseleave', pause);
-    } else {
-      trigger.addEventListener('click', function (e) {
-        e.preventDefault();
-        if (tile.classList.contains('is-playing')) pause(); else play();
-      });
-    }
+    // an earlier version of this (wiring plain mouseenter + click
+    // unconditionally) made a tap play() then instantly toggle back to
+    // pause() -- the video never visibly played. A follow-up attempt
+    // gated hover-vs-click on a `(hover: hover)` media query, but that
+    // broke plain mouse clicking on hover-capable desktops (no hover
+    // handler existed for the click path there, so hovering worked but
+    // clicking without hovering first did nothing).
+    //
+    // Pointer Events carry a real pointerType per event, so track the
+    // most recent one directly instead of guessing from a static media
+    // query: real mouse hover plays/pauses on enter/leave as before,
+    // and click only runs the toggle when the last pointer interaction
+    // wasn't a mouse (i.e. touch, or hover unsupported) -- so a touch
+    // tap's synthesized mouseenter+click pair no longer fights itself.
+    var lastPointerType = null;
+    trigger.addEventListener('pointerenter', function (e) {
+      lastPointerType = e.pointerType;
+      if (e.pointerType === 'mouse') play();
+    });
+    trigger.addEventListener('pointerleave', function (e) {
+      if (e.pointerType === 'mouse') pause();
+    });
+    trigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (lastPointerType === 'mouse') return;
+      if (tile.classList.contains('is-playing')) pause(); else play();
+    });
     trigger.addEventListener('focus', play);
     trigger.addEventListener('blur', pause);
   });
