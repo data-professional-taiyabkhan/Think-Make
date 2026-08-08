@@ -119,9 +119,9 @@ Write-Host 'story: Sohail Varca Villa AI.mp4 -> sohail-loop.mp4 (31-40s, outside
 Invoke-FF @(
     '-ss', '31', '-t', '9', '-i', $sohailIn,
     '-an',
-    '-vf', 'scale=720:-2:flags=lanczos',
+    '-vf', 'scale=400:-2:flags=lanczos',
     '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p',
-    '-crf', '25', '-preset', 'slow', '-movflags', '+faststart',
+    '-crf', '30', '-preset', 'slow', '-movflags', '+faststart',
     (Join-Path $VideoStory 'sohail-loop.mp4')
 )
 Invoke-FF @(
@@ -129,6 +129,36 @@ Invoke-FF @(
     '-vf', 'scale=480:-2:flags=lanczos', '-q:v', '6',
     (Join-Path $VideoStory 'sohail-loop-poster.jpg')
 )
+
+# ---------------------------------------------------------------------------
+# Story-sized thumbnails: the pinned story displays reused client clips as
+# small ~220-320px floating cards (see css/site.css .story-layer), but the
+# work-grid versions of the same clips are encoded at 720-1280px for
+# full-tile playback. Serving that oversized file into a 220px card wastes
+# bandwidth for zero visual gain and was a real contributor to slow/glitchy
+# loading on first deploy. Derive small dedicated variants from source for
+# story use only; the client/ versions stay full-size for the work grid.
+# ---------------------------------------------------------------------------
+function Convert-StoryThumb {
+    param([string]$SourceFile, [string]$Slug, [int]$Width, [double]$TrimStart, [double]$TrimDur)
+    $inPath = Join-Path $Src $SourceFile
+    if (-not (Test-Path $inPath)) { throw "Missing source file: $inPath" }
+    $outVideo = Join-Path $VideoStory "$Slug-thumb.mp4"
+    Write-Host "story thumb: $SourceFile -> $Slug-thumb.mp4" -ForegroundColor DarkCyan
+    Invoke-FF @(
+        '-ss', "$TrimStart", '-t', "$TrimDur", '-i', $inPath,
+        '-an',
+        '-vf', "scale=$($Width):-2:flags=lanczos",
+        '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p',
+        '-crf', '30', '-preset', 'slow', '-movflags', '+faststart',
+        $outVideo
+    )
+}
+
+Convert-StoryThumb -SourceFile 'ED podcast trailer final.mp4' -Slug 'podcast-trailer-1' -Width 400 -TrimStart 10 -TrimDur 8
+Convert-StoryThumb -SourceFile 'mens Poadcast F2.mp4'         -Slug 'podcast-trailer-3' -Width 400 -TrimStart 8  -TrimDur 8
+Convert-StoryThumb -SourceFile '160 old V1 f3.mp4'            -Slug 'land-plot'         -Width 400 -TrimStart 40 -TrimDur 8
+Convert-StoryThumb -SourceFile 'Dubai Real3 final.mp4'        -Slug 'dubai-investment'  -Width 400 -TrimStart 5  -TrimDur 8
 
 # ---------------------------------------------------------------------------
 # Stock B-roll (PixelClip1-6) -> assets/video/stock/pixelclipN.mp4
