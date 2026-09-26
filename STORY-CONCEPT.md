@@ -1,51 +1,31 @@
 # Story Concept — pinned scroll sequence
 
-## Revision note (2026-08-07)
+## Direction
 
-Superseding the caption-led version of this document. Direction from the client: forget matching the reference build — build something better, and tell the story through **footage and imagery, not text**. The touchstone given was the genre of scrollytelling sites where a product visually assembles itself as you scroll (e.g. a burger's layers stacking, then dropping into its box) — layered visual elements resolving into a finished thing, not caption cards narrating over a clip.
+Tell the studio's process through footage, not captions. Raw client clips appear as scattered, muted "dailies"; they converge and align as you scroll; colour lands as they become one finished piece; a contrasting format cuts in to prove range; the finished pieces settle into a row of tiles and the mark signs off. On-screen text is one big outlined word per beat, using the studio's own process language (Discovery / Strategy / Edit / Retention / Delivery), plus mono HUD chrome (timecode, beat index).
 
-Applied here: raw client clips appear as scattered, offset, muted "layers" early in the sequence; they visually converge and align as the scroll progresses; color lands as they assemble; a contrasting format cuts in to prove range; the assembled layers then settle directly into the real work-grid tiles below — the layers *become* the grid, mirroring the burger-into-box hand-off instead of a separate closing flourish. On-screen text is cut to a single short mono-label per beat (reusing the studio's own five-word process language — Discovery / Strategy / Edit / Retention / Delivery), not sentences.
+Assets come only from the confirmed client list; stock (`pixelclip1`, `pixelclip6`) appears only as low-opacity timeline texture under beat 02, never as a card. `Sohail Varca Villa` is used only via the derived clips that already exclude the Airbnb window.
 
-## Why this replaces the reference build's six-beat structure
+## Implementation (js/story.js)
 
-The reference build (`source-assets/think-and-make-v4_2.html`) tells "one take becoming a brand" — a single generic clip getting graded across six pinned beats, text-forward, built without real footage behind it. Now that every asset has actually been reviewed (`ASSET-INVENTORY.md`), the more compelling story isn't one clip getting polished — it's that **the same two-person studio edits two completely different worlds**: glossy, motion-graphics-driven real estate/investment content, and raw, personal podcast conversation. That contrast *is* the differentiator ("high retention" — keeping people watching regardless of format), backed by real deliverables and told visually.
+One paused GSAP timeline (10 units long), scrubbed by ScrollTrigger over a 520vh sticky stage (`scrub: 0.8`). All layout targets are function-based and re-evaluated on refresh, so the choreography survives resizes. Beat boundaries for video activation: 0 / .15 / .32 / .54 / .76 / 1.
 
-**5 beats, ~450vh pinned**, matching the studio's own process language from `HamzaWebsite.docx` (Discovery → Strategy → Edit → Retention → Delivery). Beat 5 hands off directly into the work grid instead of a separate closing flourish.
+| Beat | Timeline | What happens | Media |
+|---|---|---|---|
+| 01 Discovery | 0–1.5 | "Discovery" rises behind; four cards fade/scale in at scattered positions and rotations, navy-veiled and desaturated. | a `sohail-loop` (9:16), b `podcast-trailer-1-thumb` (16:9), c `podcast-trailer-3-thumb` (16:9), d `land-plot-thumb` (9:16) |
+| 02 Strategy | 1.5–3.2 | "Strategy" rises; timeline textures fade in underneath and drift; the four cards travel to one aligned centre stack (rotation → ~0, scale .92). | + `pixelclip1`, `pixelclip6` at .22 / .14 opacity |
+| 03 Edit | 3.2–5.4 | Cards collapse (fade + shrink); a full-height 9:16 reel scales up in their place; its navy veil dissolves — colour lands. Caption: "Property Reel · 9:16". | `story/edit-reel.mp4` (Dubai rental yields, 12–24s) |
+| 04 Retention | 5.4–7.6 | Hard cut (a `set`, not a fade) to a wide 16:9 trailer at 1.06 scale easing to 1, its burned-in captions driving the beat. Caption: "Podcast Trailer · 16:9". | `story/retention-reel.mp4` (faisaal pod trailer, 15–27s) |
+| 05 Delivery | 7.6–10 | The trailer shrinks to a tile in the centre; cards a and d slide in from the sides in full colour (veils off, `is-color`) to flank it; "Delivery" rises; the T&M mark pops in below. | retention reel + cards a, d + `img/brand/logo.png` |
 
-**Assets used only from the confirmed "client work" list, never stock in a work-implying context** (per brief §2.4; stock `PixelClip*`/`pexels-*` used only as ambient texture behind/beneath the layers, never as a "layer" itself). `Sohail Varca Villa AI.mp4` is used only outside its 28.5–30.5s Airbnb window (cut with margin, 27–32s excluded). `160 old V1 f3.mp4` is now client-cleared and available — see Resolved item below.
+Only the active beat's videos play; everything else is paused at each boundary (with a small hysteresis so scrub overshoot at a boundary doesn't thrash play/pause). `autoAlpha` keeps invisible layers `visibility: hidden`.
 
-## Beats
+## Fallbacks
 
-### 01 — DISCOVERY · 0–15% (~68vh)
-**On screen:** Near-black stage, radial spotlight mask (plate: `pexels-ron-lach-8102674.jpg`, graded per §3.2). Three to four muted, desaturated client clips appear as small offset video "cards" scattered around the frame at different depths/rotations — `Sohail Varca Villa AI.mp4` (interior segment, ~31–40s), `ED podcast trailer final.mp4`, `mens Poadcast F2.mp4`, `160 old V1 f3.mp4` — each silent, low-opacity, unsynced, like raw dailies not yet touched. A HUD chrome overlay (mono timecode, "REC" dot, fps counter) sits over the stage.
-**Label:** `DISCOVERY` (small mono tag, corner-anchored — not a headline).
-**Purpose:** establishes the edit-bay framing device and the "muted at rest" client-footage treatment (brief §3.4) as scattered raw material, before anything assembles.
+- `prefers-reduced-motion`: the sticky stage is not rendered; five static beats (poster per beat) stack vertically.
+- GSAP not loaded (CDN blocked): `site.js` adds `body.no-motion`, which shows the same static beats.
 
-### 02 — STRATEGY · 15–30% (~68vh)
-**On screen:** The scattered cards from beat 1 begin drifting toward alignment — translating and rotating toward a shared axis (transform-only) — while timeline/waveform textures (`PixelClip1.mp4`, `PixelClip6.mp4`) run as low-opacity background plates underneath. Still desaturated, still silent; only their positions change.
-**Label:** `STRATEGY`.
-**Purpose:** gives Content Strategy — an otherwise invisible service — a concrete visual (the plan behind the assembly) instead of a generic icon or a sentence of copy.
+## Resolved items
 
-### 03 — EDIT · 30–50% (~90vh)
-**On screen:** The aligned cards converge and merge into one full-bleed frame: `Dubai real 12 f2.mp4` blooms to full saturation and full color — talking-head presenter, Burj Khalifa skyline, motion-graphic location cards ("Top locations: JVC, Business Bay"). This is the "grade lands" payoff moment, now literally the point where the scattered layers *become* one finished piece.
-**Label:** `EDIT`.
-**Purpose:** the single most legible gesture in the sequence — desaturated fragments resolving into one saturated whole — earned by real footage, not a stand-in clip.
-
-### 04 — RETENTION · 50–75% (~113vh)
-**On screen:** Hard cut to a completely different register: `faisaal pod trailer f2.mp4`, full color, full frame, its own bold Hinglish captions ("Wo REJECT ho jaate hain") burned in and driving the beat visually — the caption craft itself is the proof, not a claimed percentage.
-**Label:** `RETENTION`.
-**Purpose:** proves range — same studio, opposite format (raw two-person conversation vs. polished real-estate motion graphics) — without inventing a retention number the brief bans.
-
-### 05 — DELIVERY · 75–100% (~90vh)
-**On screen:** The frame splits and pulls back: `Dubai Real3 final.mp4` (portrait), `ED podcast trailer final.mp4` (landscape), and `160 old V1 f3.mp4` (portrait) settle into position at their mismatched aspect ratios and *become* the first three tiles of the actual work grid beneath the fold — no separate transition, the pinned layer literally is the top of the grid. The T&M ribbon mark (`LOGOHamza.png`) draws on in outline as the sequence releases.
-**Label:** `DELIVERY`.
-**Purpose:** the hand-off is the payoff — what the visitor scrolls into next isn't a new section, it's the same footage they just watched assemble, now at rest as real work.
-
-## Scroll mechanics (per brief §7, implemented via GSAP ScrollTrigger)
-ScrollTrigger's own scrub-smoothing drives progress (no direct raw `scrollY` binding in application code); every animated property is `transform`/`opacity` only; `will-change`/`translate3d` applied solely to the animating layers; off-screen video paused via `IntersectionObserver`; persistent booking CTA reachable throughout; full `prefers-reduced-motion` fallback (sequence unpins, all five beats' key frames visible as static stacked sections at their converged/final positions, no autoplay).
-
-## Resolved item
-The phone-number overlay on `160 old V1 f3.mp4` is client-cleared (2026-08-07) — the clip is now used both in the pinned story (beats 1 and 5, above) and in the work grid.
-
-## Resolved item
-The phone-number overlay on `160 old V1 f3.mp4` is client-cleared (2026-08-07) — the clip is available for **Selected Work** in Phase 1. It's still left out of the pinned scroll story itself; the 5-beat structure above stands as proposed, and this clip joins the work grid alongside the other six confirmed pieces.
+- Phone-number overlay on `160 old V1 f3.mp4` (card d / work tile 05): client-cleared 2026-08-07.
+- Sohail Varca Villa end card (phone + call icons in the last ~4s of the derived clip): appears only in the work grid / lightbox, not in the story loop (3–12s). Confirm with the client (see README TODOs).

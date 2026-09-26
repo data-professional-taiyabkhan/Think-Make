@@ -4,61 +4,54 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-This is a **pre-build** repository. It currently contains only `assets/` — raw client footage, stock B-roll, brand assets, a reference HTML build, and the project brief. No `index.html`, CSS, JS, or build tooling exists at the repo root yet; those are created during Phase 1 (see below). There is no git repo, no package.json, and no test/lint/build commands — none should be invented. This is a static site with **no framework and no npm install** unless explicitly justified and approved (see brief §1).
+**Built.** `index.html`, `css/site.css`, `js/site.js`, `js/story.js` and the derived `assets/` are the deployable site (see `README.md` for the section-by-section description). There is no package.json, no build step and no test runner; none should be invented. The site is static, no framework, and motion comes from GSAP 3.13 + Lenis via jsDelivr with a no-CDN fallback baked into the CSS/JS.
+
+The raw material (client footage, `HamzaWebsite.docx`, the brief `claudecode.md`, the reference build) lives in `source-assets/`, which is gitignored. **A fresh clone does not contain it.** Everything in `assets/` is derived from it by committed scripts.
 
 ## The brief is the source of truth
 
-**Read `assets/claudecode.md` in full before doing anything in this repo.** It is the actual project specification — hard rules, ground-truth facts (team bios, stats, services, client list), brand system, performance constraints, phased workflow, and acceptance criteria. Do not duplicate its content into memory or paraphrase from summary; re-read it, because the rules in it (what facts are permitted, which assets may appear where) are strict and violating them is the primary failure mode on this project. Key points worth internalizing up front:
+If `source-assets/claudecode.md` is present, read it in full before changing copy or media placement. If it is not present (fresh clone), the rules below plus `ASSET-INVENTORY.md` are what you have; do not loosen them.
 
-- **Two-phase workflow, hard stop between phases.** Phase 0 = asset inventory (`ASSET-INVENTORY.md`) + story proposal (`STORY-CONCEPT.md`), then **stop and wait for approval** before writing any site code (Phase 1). Do not skip ahead to building.
-- **Invent nothing.** Every factual claim (names, stats, client identities) must trace to §2 of the brief or `assets/HamzaWebsite.docx`. No fabricated testimonials, metrics, or turnaround claims.
-- **Client work vs. stock is a hard boundary.** Only the seven files listed in brief §2.4 may appear in "Selected Work"; `PixelClip1–6.mp4` and the `pexels-*.jpg` stills are backgrounds/texture only and must never be captioned as client work.
-- `Sohail_Varca_Villa_AI.mp4` has an Airbnb logo around 0:29 — that segment must never be used, anywhere.
-- Client display names in the brief's table are unconfirmed guesses — use neutral descriptors ("Property Reel", "Podcast Trailer") with a visible TODO, never publish a client name that hasn't been confirmed.
+- **Invent nothing.** Every factual claim (names, stats, client identities, testimonials) must already exist in the page or trace to the brief / docx. No fabricated testimonials, metrics, turnaround or retention numbers.
+- **Client work vs. stock is a hard boundary.** Only the seven `assets/video/client/*.mp4` pieces may appear as work. `assets/video/stock/*` and `assets/img/stock/*` are backgrounds/texture only and must never be captioned or framed as client work.
+- **Sohail Varca Villa** had an Airbnb badge at ~28.5–30.5s of the raw file. `build-assets.ps1` cuts 27–32s out; `build-motion-assets.py` only ever reads the already-cut derived clip. Never derive anything for that piece from `source-assets/` directly.
+- Client display names are unconfirmed. Keep the neutral descriptors and the visible `data-todo` markers until the owner confirms each one.
+- "Unlimited Revisions" stays (client override, documented in `ASSET-INVENTORY.md`).
 
-## Reference build
-
-`assets/think-and-make-v4_2.html` is a working single-file reference implementation (~627 lines, embedded `<style>`/`<script>`, some base64-inlined assets). It's the quality bar to beat, not a template to copy verbatim — the brief explicitly asks for a better structure for the pinned scroll story than its current six beats. Its section order (`nav → hero → story (pinned, id="story") → marquee → services → work → team → book`) reflects the target IA described in the brief.
-
-## Target deliverable structure (Phase 1)
+## Asset pipeline
 
 ```
-/
-  index.html
-  css/site.css
-  js/story.js
-  js/site.js
-  assets/            # derived, web-optimised only (source files stay out)
-  ASSET-INVENTORY.md
-  STORY-CONCEPT.md
-  README.md
+source-assets/*  --tools/build-assets.ps1-->  assets/video/client, stock, img/*
+assets/video/client/*.mp4  --tools/build-motion-assets.py-->  assets/video/hero/*, assets/video/story/{edit,retention}-reel*, larger client posters
 ```
 
-Web assets must be derived from the raw files in `assets/` via a **committed script** (`tools/build-assets.ps1` or `.py`) — never hand-processed — so it can be re-run when new footage arrives.
+Never hand-process a file in `assets/`; fix the script and re-run. Both scripts need `ffmpeg` on PATH (the Python one also accepts `imageio-ffmpeg`). After changing any asset, bump the `?v=N` query string in `index.html` (`_headers` caches `assets/*` as immutable).
 
 ## Environment
 
-- **Windows / PowerShell.** All shell commands must be PowerShell-compatible.
-- `ffmpeg` and `ffprobe` must be on PATH (verify with `ffmpeg -version`); used for asset probing (Phase 0) and deriving web-optimized media (Phase 1). Always pass `-nostdin` to `ffmpeg` in batch/loop contexts — without it, ffmpeg consumes the loop's stdin and silently corrupts the run.
-- Deployment target is Cloudflare Pages (static files only).
+- Owner's machine is Windows / PowerShell; keep commands PowerShell-compatible in docs. The Python script is cross-platform.
+- Always pass `-nostdin` to ffmpeg in loops.
+- Local preview needs a Range-capable static server (`npx serve .`), not `python -m http.server`.
+- Deployment target is Cloudflare Pages, static files only.
 
-## Performance constraints (non-negotiable, learned from the reference build)
+## Performance constraints (non-negotiable)
 
-These caused visible stutter previously and are treated as hard constraints, not suggestions, for any scroll/animation code:
+1. Never drive animation directly from `scrollY`. Lenis + ScrollTrigger `scrub` provide the smoothed value; no per-frame `scrollY` reads.
+2. Never write layout properties (`width`/`height`/`top`/`left`) inside a per-frame update; `transform`/`opacity` only. State changes on hover (cursor ring size, filters) are fine because they are not per-frame.
+3. No `backdrop-filter` on repeated/stacked elements (the single fixed nav is the only one). No `mix-blend-mode` on full-viewport animated layers. The grain layer is a static SVG background, never animated.
+4. Hidden beats use `autoAlpha` (visibility hidden at 0) and their videos are paused.
+5. Grade in ffmpeg at encode time (hero loops are pre-graded), never with per-frame CSS `filter` on a full-viewport video.
+6. Pause all off-screen video via `IntersectionObserver` (site.js has a global net; hero and story manage their own).
+7. `will-change: transform` only on layers that actually animate.
 
-1. Never drive animation directly from `scrollY` — smooth a value toward the scroll target in a rAF loop (ease factor ~0.13), idle when delta is negligible.
-2. Never write layout properties (`width`/`height`/`top`/`left`) inside the scroll loop — animate `transform`/`opacity` only.
-3. No `backdrop-filter` on repeated/stacked elements; no `mix-blend-mode` on full-viewport animated layers.
-4. Set `visibility:hidden` and skip per-frame work for zero-opacity beats.
-5. Pre-blur video in ffmpeg at encode time, never with CSS `filter: blur()`.
-6. Pause all off-screen video/animation via `IntersectionObserver`.
-7. Use `translate3d` + `will-change: transform` on animated layers only.
+Target: sustained 60fps through the pinned story and the horizontal gallery at 2560×1440, profiled in DevTools Performance on a real browser.
 
-Target: sustained 60fps through the pinned scroll sequence at 2560×1440, profiled in DevTools Performance.
+## Verifying changes
+
+Headless Chromium builds shipped with Playwright have no H.264 decoder, so `<video>` shows posters only. Layout, scroll choreography, console errors and overflow can be checked headlessly; playback and frame rate cannot. Say so explicitly when reporting.
 
 ## Brand system quick reference
 
 - Palette: `--ink #050810` · `--navy #0D47A1` · `--blue #2196F3` · `--sky #90CAF9` · `--mist #E3F2FD`
 - Type: Archivo (display, 800–900) · Instrument Sans (body) · IBM Plex Mono (labels/timecodes) — via Google Fonts, don't substitute Inter.
-- Client footage: muted at rest (~42% saturation, ~58% brightness, navy overlay), full colour on hover — never permanently re-grade a client's finished work.
-- Full brand/duotone spec is in brief §3.
+- Client footage: muted at rest (~42% saturation, ~58% brightness, navy veil), full colour on hover/when the story "grades" it. Never permanently re-grade a client's finished work: the work-grid and lightbox files stay true colour; only the hero background loops are pre-graded.
