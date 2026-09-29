@@ -431,9 +431,10 @@
   }
 
   /* ---------------------------------------------------------------------
-     Work gallery: pinned horizontal scroll on desktop, hover-to-play
+     Work: long form | short form split. Hover-to-play on every tile, a
+     per-tile reveal, a divider that draws as you pass, and a gentle
+     counter-scroll on the short-form column so the two streams feel alive.
      --------------------------------------------------------------------- */
-  var workPin = $('#workPin'), workTrack = $('#workTrack'), workIndex = $('#workIndex');
   var tiles = $$('.tile[data-video]');
   tiles.forEach(function (tile) {
     var btn = $('.tile__btn', tile), video = $('.tile__video', tile);
@@ -450,27 +451,41 @@
     btn.addEventListener('blur', pause);
   });
 
-  if (workPin && workTrack && !reduceMotion) {
-    var mm = gsap.matchMedia();
-    mm.add('(min-width: 900px)', function () {
-      var distance = function () { return Math.max(0, workTrack.scrollWidth - window.innerWidth); };
-      var tween = gsap.to(workTrack, {
-        x: function () { return -distance(); },
-        ease: 'none',
-        scrollTrigger: {
-          trigger: workPin, start: 'top top', end: function () { return '+=' + distance(); },
-          pin: true, scrub: 1, anticipatePin: 1, invalidateOnRefresh: true,
-          onUpdate: function (self) {
-            if (workIndex) workIndex.textContent = String(1 + Math.round(self.progress * (tiles.length - 1))).padStart(2, '0');
-          }
-        }
-      });
-      return function () { tween.kill(); };
+  var split = $('#workSplit');
+  if (split && !reduceMotion) {
+    tiles.forEach(function (tile) {
+      gsap.from(tile, { y: 44, autoAlpha: 0, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: tile, start: 'top 92%', once: true } });
     });
-    mm.add('(max-width: 899px)', function () {
-      var tw = gsap.from(tiles, { y: 40, autoAlpha: 0, duration: 1, ease: 'power3.out', stagger: .1,
-        scrollTrigger: { trigger: workTrack, start: 'top 85%', once: true } });
-      return function () { tw.kill(); };
+    var rule = $('#splitRule');
+    if (rule) {
+      gsap.to(rule, { scaleY: 1, ease: 'none',
+        scrollTrigger: { trigger: split, start: 'top 75%', end: 'bottom 70%', scrub: .6 } });
+    }
+    var mmSplit = gsap.matchMedia();
+    mmSplit.add('(min-width: 900px)', function () {
+      var list = $('#shortList'), colLong = $('#colLong');
+      if (!list) return;
+      var tw = gsap.fromTo(list, { y: 70 }, { y: -70, ease: 'none',
+        scrollTrigger: { trigger: split, start: 'top bottom', end: 'bottom top', scrub: true } });
+      // Sticky-bottom for the shorter column (see .split__col--long in CSS).
+      var ro = null;
+      function setLongTop() {
+        if (!colLong) return;
+        var top = Math.min(window.innerHeight - colLong.offsetHeight - 32, 80);
+        colLong.style.top = top + 'px';
+      }
+      if (colLong) {
+        setLongTop();
+        if ('ResizeObserver' in window) { ro = new ResizeObserver(setLongTop); ro.observe(colLong); }
+        window.addEventListener('resize', setLongTop);
+      }
+      return function () {
+        tw.kill(); gsap.set(list, { clearProps: 'transform' });
+        if (ro) ro.disconnect();
+        window.removeEventListener('resize', setLongTop);
+        if (colLong) colLong.style.top = '';
+      };
     });
   }
 

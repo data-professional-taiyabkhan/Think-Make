@@ -14,6 +14,23 @@ Compiled by probing every video with `ffprobe`, extracting and visually reviewin
 | `mens Poadcast F2.mp4` | 1920×1080 | 16:9 | 0:45 | Podcast studio with a striped acoustic-panel backdrop, teal/cyan captions; at least two different older male guests appear across the clip. | Clean. |
 | `Sohail Varca Villa AI.mp4` | 1080×1920 | 9:16 | 0:45 | AI-generated/stylized investment-pitch reel for a villa in Varca, South Goa: satellite zoom to a "Varca beach" location tag → nearby-amenities photo cards ("Eastern Supermarket", "Nick's Cafe", "Apollo Pharmacy") captioned "all right there / Supermarkets Restaurants Hospitals" → 3D-rendered villa exterior + pool with an **Airbnb badge overlay** → interior bedroom render captioned "so while you are not here" → more exterior renders captioned "Whether you want to Live here". | **The Airbnb-branded segment is confirmed at ~28.5s–30.5s** (dense-sampled frame-by-frame; matches the brief's "around 0:29" estimate). That window must be cut entirely from any derived clip — never trim-adjacent, cut around it with margin. |
 
+## Client work — second batch (Google Drive, 2026-09-29)
+
+Shared by the owner as a Drive folder; Hamza confirmed each client's permission to showcase. Probed with `ffmpeg -i` and reviewed on 32-frame contact sheets. **All eight are 9:16 portrait with audio.** Derived by `tools/build-motion-assets.py` stage 1 (audio stripped to match the first seven; see the script header to change that). Raw files live in `source-assets/drive-2026-09/` (gitignored); the script accepts either the Drive title or its slugified filename.
+
+| Drive title | Derived slug | Res / fps | Duration | What's actually in it | Placement notes |
+|---|---|---|---|---|---|
+| `Hair doctor 27 f3.mp4` | `doctor-formulations` | 1080×1920 25fps | 1:38 | Doctor talking head in a clinic with kinetic captions and cut-in motion graphics (formulations, "Health care", commission illustrations). The doctor's own clinic signage and prescription pad appear briefly. | Short form 01. Longest reel in the set. |
+| `Hair doctor 28.mp4` | `doctor-hair-loss` | 1080×1920 25fps | 0:39 | Hair-loss explainer with medical illustrations, ends on a "Comment GUIDE" card. | Short form 07. Clean. |
+| `hair doctor 31.mp4` | `doctor-vitamins` | 1080×1920 25fps | 0:58 | Vitamin-deficiency explainer, strong motion graphics (DEFICIENCY, Vitamin D / Zn / E), ends on captions + "FOLLOW". | Short form 05. Also the third mobile hero loop (10–18s). |
+| `final mithi m'aam.mp4` | `creator-style` | 1080×1920 30fps | 1:05 | Fashion creator talking head, bright kinetic captions, a couple of collage cut-ins. | Short form 02. Clean. |
+| `Mithii 8.mp4` | `creator-jewellery` | 1080×1920 30fps | 0:41 | Jewellery pieces (pendant, ear cuffs, neckpiece) with product close-ups, ends on "Comment your favorite". | Short form 04. Also the second mobile hero loop (0–8s). |
+| `Vivek 2bhk.mp4` | `property-2bhk` | 2160×3840 30fps | 0:38 | 2BHK apartment walkthrough in Davorlim, on-screen price (₹63 Lakh), satellite map, "Comment Flat" end card. No phone number seen. | Short form 03. 4K source, scaled to 720 like the rest. |
+| `Tony twin villa.mp4` | `property-twin-villa` | 1080×1920 30fps | 0:37 | Twin-villa 3BHK drone + walkthrough, satellite map, "Comment Villa" end card. **A phone number with call icons is burned in on the last ~4s** (the agent's own contact, same pattern as the Varca villa clip). | Short form 09. Confirm with the client, as for the Varca villa end card. |
+| `final.mp4` | — | 1080×1920 30fps | 0:43 | Fragrance review: third-party product names and bottle imagery on screen throughout. | **Not derived, not placed.** Add a row to `SOURCE_CLIPS` in the script if the client confirms it is fine to publish. |
+
+Selection on the site: the Short form column shows the seven derived reels above plus three of the original portrait pieces (`dubai-rental-yields`, `sohail-villa`, `land-plot`). `dubai-investment` stays derived and in the story fallback but is off the grid for variety (same presenter as `dubai-rental-yields`).
+
 ## Stock B-roll (backgrounds/textures ONLY — never captioned as work)
 
 | File | Resolution | Orientation | Duration | What's actually in it |
