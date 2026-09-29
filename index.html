@@ -8,365 +8,572 @@
 <meta property="og:title" content="Think & Make — Personal Branding & Video Editing Studio">
 <meta property="og:description" content="High-retention video editing and personal branding for founders, coaches and podcasters.">
 <meta property="og:type" content="website">
+<meta name="theme-color" content="#000000">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="icon" href="assets/img/brand/logo.png?v=2">
-<link rel="stylesheet" href="css/site.css">
+<link rel="icon" href="assets/img/brand/logo.png?v=4">
+<link rel="preload" as="image" href="assets/video/hero/reel-l1-poster.jpg?v=4" media="(orientation: landscape)">
+<link rel="preload" as="image" href="assets/video/hero/reel-p1-poster.jpg?v=4" media="(orientation: portrait)">
+<link rel="stylesheet" href="css/site.css?v=4">
 </head>
 <body>
 
 <a class="skip-link" href="#main">Skip to content</a>
 
+<!-- Static film grain. One fixed layer, never animated, no blend mode. -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Custom cursor (desktop, pointer: fine only). -->
+<div class="cursor is-hidden" id="cursor" aria-hidden="true">
+  <div class="cursor__dot"></div>
+  <div class="cursor__ring"><span class="cursor__label"></span></div>
+</div>
+
+<!-- Preloader: a render bar and a frame counter, then a curtain wipe. -->
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__inner">
+    <p class="preloader__tc" id="preloaderTc">00:00:00:00</p>
+    <p class="preloader__word" aria-hidden="true">
+      <span class="preloader__mask"><span>Think</span></span>
+      <span class="preloader__mask"><span>&amp;</span></span>
+      <span class="preloader__mask"><span>Make</span></span>
+    </p>
+    <div class="preloader__bar"><span id="preloaderBar"></span></div>
+  </div>
+</div>
+
 <!-- ============================= NAV ============================= -->
 <nav class="nav" id="nav" aria-label="Primary">
-  <a class="nav__brand" href="#top">
-    <img src="assets/img/brand/logo.png?v=2" alt="Think & Make" width="32" height="32">
+  <a class="nav__brand" href="#top" data-scroll>
+    <img src="assets/img/brand/logo.png?v=4" alt="" width="32" height="32">
     <span>Think &amp; Make</span>
   </a>
-  <button class="nav__toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks">
-    <span></span><span></span><span></span>
+  <div class="nav__links" id="navLinks">
+    <a href="#work" data-scroll>Work</a>
+    <a href="#services" data-scroll>Services</a>
+    <a href="#process" data-scroll>Process</a>
+    <a href="#team" data-scroll>Team</a>
+    <a class="nav__cta btn btn--primary btn--small" href="#book-url" data-todo="booking URL" data-magnetic>Book a call</a>
+  </div>
+  <button class="nav__toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu">
+    <span class="nav__toggle-bar"></span>
+    <span class="nav__toggle-bar"></span>
     <span class="visually-hidden">Menu</span>
   </button>
-  <div class="nav__links" id="navLinks">
-    <a href="#work">Work</a>
-    <a href="#services">Services</a>
-    <a href="#process">Process</a>
-    <a href="#team">Team</a>
-    <a class="nav__cta" href="#book-url" data-todo="booking URL">Book a call</a>
-  </div>
 </nav>
+
+<!-- Mobile menu (full-screen overlay) -->
+<div class="menu" id="navMenu" aria-hidden="true">
+  <div class="menu__inner">
+    <p class="menu__eyebrow">Menu</p>
+    <a class="menu__link" href="#work" data-scroll><span>01</span>Work</a>
+    <a class="menu__link" href="#services" data-scroll><span>02</span>Services</a>
+    <a class="menu__link" href="#process" data-scroll><span>03</span>Process</a>
+    <a class="menu__link" href="#team" data-scroll><span>04</span>Team</a>
+    <a class="btn btn--primary btn--large menu__cta" href="#book-url" data-todo="booking URL">Book a Free Discovery Call</a>
+    <div class="menu__social">
+      <a href="https://www.linkedin.com/in/thinkandmake-agency-050558420/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://www.instagram.com/thinkandmakeofficial/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://x.com/Athinkandmake" target="_blank" rel="noopener">Twitter</a>
+    </div>
+  </div>
+</div>
 
 <main id="main">
 
-  <!-- ============================= HERO ============================= -->
+  <!-- ============================= HERO / SHOWREEL ============================= -->
   <header class="hero" id="top">
-    <div class="hero__bg" aria-hidden="true">
-      <img src="assets/img/stock/spotlight-grade.webp?v=2" alt="" loading="eager">
+    <div class="hero__reel" id="heroReel" aria-hidden="true">
+      <!-- Landscape set (used on landscape viewports) -->
+      <video class="hero__clip" data-set="l" data-src="assets/video/hero/reel-l1.mp4?v=4" poster="assets/video/hero/reel-l1-poster.jpg?v=4" muted loop playsinline preload="none"></video>
+      <video class="hero__clip" data-set="l" data-src="assets/video/hero/reel-l2.mp4?v=4" poster="assets/video/hero/reel-l2-poster.jpg?v=4" muted loop playsinline preload="none"></video>
+      <video class="hero__clip" data-set="l" data-src="assets/video/hero/reel-l3.mp4?v=4" poster="assets/video/hero/reel-l3-poster.jpg?v=4" muted loop playsinline preload="none"></video>
+      <!-- Portrait set (used on portrait viewports, so reels are never centre-cropped) -->
+      <video class="hero__clip" data-set="p" data-src="assets/video/hero/reel-p1.mp4?v=4" poster="assets/video/hero/reel-p1-poster.jpg?v=4" muted loop playsinline preload="none"></video>
+      <video class="hero__clip" data-set="p" data-src="assets/video/hero/reel-p2.mp4?v=4" poster="assets/video/hero/reel-p2-poster.jpg?v=4" muted loop playsinline preload="none"></video>
+      <video class="hero__clip" data-set="p" data-src="assets/video/hero/reel-p3.mp4?v=4" poster="assets/video/hero/reel-p3-poster.jpg?v=4" muted loop playsinline preload="none"></video>
       <div class="hero__scrim"></div>
     </div>
+
+    <div class="hero__frame" aria-hidden="true">
+      <i></i><i></i><i></i><i></i>
+    </div>
+
     <div class="hero__content container">
-      <p class="eyebrow">Personal branding &amp; video editing studio</p>
-      <h1>We build personal brands that grow.</h1>
-      <p class="hero__sub">We help founders, coaches, podcasters and businesses grow on Instagram and YouTube through strategic content, high-retention video editing and complete personal branding.</p>
-      <div class="hero__actions">
-        <a class="btn btn--primary" href="#book-url" data-todo="booking URL">Book a Free Discovery Call</a>
-        <a class="btn btn--ghost" href="#work">See the work</a>
+      <p class="eyebrow hero__eyebrow">Personal branding &amp; video editing studio</p>
+      <h1 class="hero__title" data-split="lines">We build personal brands that grow.</h1>
+      <p class="hero__sub" data-reveal>High-retention video editing and personal branding for founders, coaches and podcasters.</p>
+      <div class="hero__actions" data-reveal>
+        <a class="btn btn--primary" href="#book-url" data-todo="booking URL" data-magnetic>Book a Free Discovery Call</a>
+        <a class="btn btn--ghost" href="#work" data-scroll data-magnetic>See the work <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v16m0 0 6-6m-6 6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       </div>
     </div>
-    <div class="hero__scrollcue" aria-hidden="true"><span></span>Scroll</div>
+
+    <div class="hero__hud" aria-hidden="true">
+      <div class="hud">
+        <span class="hud__dot"></span>
+        <span class="hud__tc" id="heroTc">00:00:00:00</span>
+      </div>
+      <div class="hero__reelmeta">
+        <span class="hud__label">Showreel</span>
+        <span class="hud__count"><b id="heroReelIndex">01</b> / 03</span>
+        <div class="hero__segments" id="heroSegments"><i></i><i></i><i></i></div>
+      </div>
+      <div class="hero__scrollcue"><span class="hero__scrollline"></span>Scroll</div>
+    </div>
   </header>
+
+  <!-- ============================= MANIFESTO ============================= -->
+  <section class="manifesto" id="about" aria-label="About Think & Make">
+    <div class="container">
+      <p class="eyebrow" data-reveal>Who we work with</p>
+      <p class="manifesto__text" id="manifesto">We help founders, coaches, podcasters and businesses grow on Instagram and YouTube through strategic content, high-retention video editing and complete personal branding.</p>
+    </div>
+  </section>
 
   <!-- ============================= PINNED STORY ============================= -->
   <section class="story" id="story" aria-label="How Think & Make works">
-    <div class="story__spacer">
-      <div class="story__stage">
+    <div class="story__spacer" id="storySpacer">
+      <div class="story__stage" id="storyStage">
 
-        <div class="hud" aria-hidden="true">
+        <div class="story__hud hud" aria-hidden="true">
           <span class="hud__dot"></span>
-          <span id="hudTc">00:00:00:00</span>
-          <span class="hud__fps">60 FPS</span>
+          <span class="hud__tc" id="storyTc">00:00:00:00</span>
+          <span class="hud__fps">24 FPS</span>
+        </div>
+        <p class="story__index" aria-hidden="true"><b id="storyIndex">01</b> / 05</p>
+
+        <!-- Big outlined beat words (kinetic type behind the media) -->
+        <div class="story__words" aria-hidden="true">
+          <p class="story__word" data-word="1">Discovery</p>
+          <p class="story__word" data-word="2">Strategy</p>
+          <p class="story__word" data-word="3">Edit</p>
+          <p class="story__word" data-word="4">Retention</p>
+          <p class="story__word" data-word="5">Delivery</p>
         </div>
 
-        <!-- Beat 01 — DISCOVERY -->
-        <div class="beat" data-beat="1">
-          <p class="beat__label"><span aria-hidden="true">01 / </span>Discovery</p>
-          <div class="layer-field">
-            <video class="story-layer" data-layer="a" data-src="assets/video/story/sohail-loop.mp4?v=2" poster="assets/video/story/sohail-loop-poster.jpg?v=2" muted loop playsinline preload="none"></video>
-            <video class="story-layer" data-layer="b" data-src="assets/video/story/podcast-trailer-1-thumb.mp4?v=2" poster="assets/video/client/podcast-trailer-1-poster.jpg?v=2" muted loop playsinline preload="none"></video>
-            <video class="story-layer" data-layer="c" data-src="assets/video/story/podcast-trailer-3-thumb.mp4?v=2" poster="assets/video/client/podcast-trailer-3-poster.jpg?v=2" muted loop playsinline preload="none"></video>
-            <video class="story-layer" data-layer="d" data-src="assets/video/story/land-plot-thumb.mp4?v=2" poster="assets/video/client/land-plot-poster.jpg?v=2" muted loop playsinline preload="none"></video>
-          </div>
-        </div>
+        <!-- Ambient timeline textures (stock, texture only, never captioned) -->
+        <video class="story__tex" data-tex="1" data-src="assets/video/stock/pixelclip1.mp4?v=4" muted loop playsinline preload="none" aria-hidden="true"></video>
+        <video class="story__tex" data-tex="2" data-src="assets/video/stock/pixelclip6.mp4?v=4" muted loop playsinline preload="none" aria-hidden="true"></video>
 
-        <!-- Beat 02 — STRATEGY -->
-        <div class="beat" data-beat="2">
-          <p class="beat__label"><span aria-hidden="true">02 / </span>Strategy</p>
-          <video class="story-texture" data-layer="tex1" data-src="assets/video/stock/pixelclip1.mp4?v=2" muted loop playsinline preload="none" aria-hidden="true"></video>
-          <video class="story-texture" data-layer="tex2" data-src="assets/video/stock/pixelclip6.mp4?v=2" muted loop playsinline preload="none" aria-hidden="true"></video>
-        </div>
+        <!-- Raw "dailies" cards: scattered, then converge, then settle into a row -->
+        <figure class="sl sl--portrait" data-card="a">
+          <video data-src="assets/video/story/sohail-loop.mp4?v=4" poster="assets/video/story/sohail-loop-poster.jpg?v=4" muted loop playsinline preload="none"></video>
+          <span class="sl__veil"></span><span class="sl__tag">A001 · 9:16</span>
+        </figure>
+        <figure class="sl sl--landscape" data-card="b">
+          <video data-src="assets/video/story/podcast-trailer-1-thumb.mp4?v=4" poster="assets/video/client/podcast-trailer-1-poster.jpg?v=4" muted loop playsinline preload="none"></video>
+          <span class="sl__veil"></span><span class="sl__tag">A002 · 16:9</span>
+        </figure>
+        <figure class="sl sl--landscape" data-card="c">
+          <video data-src="assets/video/story/podcast-trailer-3-thumb.mp4?v=4" poster="assets/video/client/podcast-trailer-3-poster.jpg?v=4" muted loop playsinline preload="none"></video>
+          <span class="sl__veil"></span><span class="sl__tag">A003 · 16:9</span>
+        </figure>
+        <figure class="sl sl--portrait" data-card="d">
+          <video data-src="assets/video/story/land-plot-thumb.mp4?v=4" poster="assets/video/client/land-plot-poster.jpg?v=4" muted loop playsinline preload="none"></video>
+          <span class="sl__veil"></span><span class="sl__tag">A004 · 9:16</span>
+        </figure>
 
-        <!-- Beat 03 — EDIT -->
-        <div class="beat" data-beat="3">
-          <p class="beat__label"><span aria-hidden="true">03 / </span>Edit</p>
-          <video class="story-hero-clip" data-layer="edit" data-src="assets/video/client/dubai-rental-yields.mp4?v=2" poster="assets/video/client/dubai-rental-yields-poster.jpg?v=2" muted loop playsinline preload="none"></video>
-        </div>
+        <!-- EDIT: one reel, graded and finished -->
+        <figure class="story__edit" id="storyEdit">
+          <video data-src="assets/video/story/edit-reel.mp4?v=4" poster="assets/video/story/edit-reel-poster.jpg?v=4" muted loop playsinline preload="none"></video>
+          <span class="sl__veil"></span>
+          <figcaption class="story__caption">Property Reel · 9:16</figcaption>
+        </figure>
 
-        <!-- Beat 04 — RETENTION -->
-        <div class="beat" data-beat="4">
-          <p class="beat__label"><span aria-hidden="true">04 / </span>Retention</p>
-          <video class="story-hero-clip" data-layer="retention" data-src="assets/video/client/podcast-trailer-2.mp4?v=2" poster="assets/video/client/podcast-trailer-2-poster.jpg?v=2" muted loop playsinline preload="none"></video>
-        </div>
+        <!-- RETENTION: hard cut to the opposite format -->
+        <figure class="story__retention" id="storyRetention">
+          <video data-src="assets/video/story/retention-reel.mp4?v=4" poster="assets/video/story/retention-reel-poster.jpg?v=4" muted loop playsinline preload="none"></video>
+          <figcaption class="story__caption">Podcast Trailer · 16:9</figcaption>
+        </figure>
 
-        <!-- Beat 05 — DELIVERY -->
-        <div class="beat" data-beat="5">
-          <p class="beat__label"><span aria-hidden="true">05 / </span>Delivery</p>
-          <div class="layer-field layer-field--settle">
-            <video class="story-layer" data-layer="settle-a" data-src="assets/video/story/dubai-investment-thumb.mp4?v=2" poster="assets/video/client/dubai-investment-poster.jpg?v=2" muted loop playsinline preload="none"></video>
-            <video class="story-layer" data-layer="settle-b" data-src="assets/video/story/podcast-trailer-1-thumb.mp4?v=2" poster="assets/video/client/podcast-trailer-1-poster.jpg?v=2" muted loop playsinline preload="none"></video>
-            <video class="story-layer" data-layer="settle-c" data-src="assets/video/story/land-plot-thumb.mp4?v=2" poster="assets/video/client/land-plot-poster.jpg?v=2" muted loop playsinline preload="none"></video>
-          </div>
-          <img class="story-mark" src="assets/img/brand/logo.png?v=2" alt="" aria-hidden="true">
-        </div>
+        <img class="story__mark" src="assets/img/brand/logo.png?v=4" alt="" aria-hidden="true" width="72" height="72">
 
-        <a class="story__persistent-cta btn btn--primary" href="#book-url" data-todo="booking URL">Book a Free Discovery Call</a>
+        <a class="story__cta btn btn--primary btn--small" href="#book-url" data-todo="booking URL">Book a call</a>
       </div>
     </div>
 
-    <!-- Reduced-motion fallback: same five beats, statically stacked -->
-    <div class="story__static" aria-hidden="false">
-      <div class="beat-static" data-beat="1">
-        <p class="beat__label">01 / Discovery</p>
-        <img src="assets/video/client/land-plot-poster.jpg?v=2" alt="Raw client footage before editing begins" loading="lazy">
-      </div>
-      <div class="beat-static" data-beat="2">
-        <p class="beat__label">02 / Strategy</p>
-        <img src="assets/img/stock/editing-suite.webp?v=2" alt="Planning the edit before cutting begins" loading="lazy">
-      </div>
-      <div class="beat-static" data-beat="3">
-        <p class="beat__label">03 / Edit</p>
-        <img src="assets/video/client/dubai-rental-yields-poster.jpg?v=2" alt="A finished, fully graded client deliverable" loading="lazy">
-      </div>
-      <div class="beat-static" data-beat="4">
-        <p class="beat__label">04 / Retention</p>
-        <img src="assets/video/client/podcast-trailer-2-poster.jpg?v=2" alt="A podcast trailer edited for watch-through" loading="lazy">
-      </div>
-      <div class="beat-static" data-beat="5">
-        <p class="beat__label">05 / Delivery</p>
-        <img src="assets/video/client/dubai-investment-poster.jpg?v=2" alt="Finished work ready for delivery" loading="lazy">
-      </div>
+    <!-- Reduced-motion / no-JS fallback: the same five beats, stacked -->
+    <div class="story__static">
+      <div class="beat-static"><p class="beat-static__label"><span>01</span> Discovery</p><img src="assets/video/client/land-plot-poster.jpg?v=4" alt="Raw client footage before editing begins" loading="lazy" width="720" height="1280"></div>
+      <div class="beat-static"><p class="beat-static__label"><span>02</span> Strategy</p><img src="assets/img/stock/editing-suite.webp?v=4" alt="Planning the edit before cutting begins" loading="lazy" width="1600" height="1067"></div>
+      <div class="beat-static"><p class="beat-static__label"><span>03</span> Edit</p><img src="assets/video/story/edit-reel-poster.jpg?v=4" alt="A finished, fully graded client reel" loading="lazy" width="720" height="1280"></div>
+      <div class="beat-static"><p class="beat-static__label"><span>04</span> Retention</p><img src="assets/video/story/retention-reel-poster.jpg?v=4" alt="A podcast trailer edited for watch-through" loading="lazy" width="1280" height="720"></div>
+      <div class="beat-static"><p class="beat-static__label"><span>05</span> Delivery</p><img src="assets/video/client/dubai-investment-poster.jpg?v=4" alt="Finished work ready for delivery" loading="lazy" width="720" height="1280"></div>
     </div>
   </section>
 
   <!-- ============================= MARQUEE ============================= -->
   <div class="marquee" aria-hidden="true">
-    <div class="marquee__track">
+    <div class="marquee__track" id="marqueeTrack">
       <span>Video Editing</span><span>Personal Branding</span><span>Content Strategy</span><span>Content Repurposing</span><span>Thumbnail Design</span><span>Social Media Management</span>
       <span>Video Editing</span><span>Personal Branding</span><span>Content Strategy</span><span>Content Repurposing</span><span>Thumbnail Design</span><span>Social Media Management</span>
     </div>
   </div>
 
   <!-- ============================= SERVICES ============================= -->
-  <section class="band wrap" id="services" aria-labelledby="servicesHeading">
-    <p class="eyebrow">What we do</p>
-    <h2 id="servicesHeading">We build personal brands that grow.</h2>
-    <div class="grid grid--services">
-      <article class="card">
-        <p class="card__index">01</p>
-        <h3>Video Editing</h3>
-        <p>High-retention videos that don't just look good — they keep your audience watching to the end.</p>
-      </article>
-      <article class="card">
-        <p class="card__index">02</p>
-        <h3>Personal Branding</h3>
-        <p>We turn your expertise into a strong personal brand that builds authority on Instagram, YouTube and LinkedIn.</p>
-      </article>
-      <article class="card">
-        <p class="card__index">03</p>
-        <h3>Content Strategy</h3>
-        <p>Every video and post is planned with a clear strategy so you grow consistently and reach the right audience.</p>
-      </article>
-      <article class="card">
-        <p class="card__index">04</p>
-        <h3>Content Repurposing</h3>
-        <p>One long-form video becomes multiple Reels, Shorts and social posts, maximising its reach.</p>
-      </article>
-      <article class="card">
-        <p class="card__index">05</p>
-        <h3>Thumbnail Design</h3>
-        <p>Professional thumbnails that attract clicks and improve your videos' CTR.</p>
-      </article>
-      <article class="card">
-        <p class="card__index">06</p>
-        <h3>Social Media Management</h3>
-        <p>From planning and scheduling to publishing and account management — your complete social presence, handled.</p>
-      </article>
+  <section class="section services" id="services" aria-labelledby="servicesHeading">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow" data-reveal>What we do</p>
+        <h2 id="servicesHeading" data-split="lines">Six services. One studio.</h2>
+      </div>
+      <ul class="index" id="serviceIndex">
+        <li class="index__row" data-preview="assets/video/stock/pixelclip1.mp4?v=4">
+          <span class="index__num">01</span>
+          <h3 class="index__name">Video Editing</h3>
+          <p class="index__desc">High-retention videos that don't just look good — they keep your audience watching to the end.</p>
+          <span class="index__arrow" aria-hidden="true"></span>
+        </li>
+        <li class="index__row" data-preview="assets/video/stock/pixelclip4.mp4?v=4">
+          <span class="index__num">02</span>
+          <h3 class="index__name">Personal Branding</h3>
+          <p class="index__desc">We turn your expertise into a strong personal brand that builds authority on Instagram, YouTube and LinkedIn.</p>
+          <span class="index__arrow" aria-hidden="true"></span>
+        </li>
+        <li class="index__row" data-preview="assets/video/stock/pixelclip3.mp4?v=4">
+          <span class="index__num">03</span>
+          <h3 class="index__name">Content Strategy</h3>
+          <p class="index__desc">Every video and post is planned with a clear strategy so you grow consistently and reach the right audience.</p>
+          <span class="index__arrow" aria-hidden="true"></span>
+        </li>
+        <li class="index__row" data-preview="assets/video/stock/pixelclip6.mp4?v=4">
+          <span class="index__num">04</span>
+          <h3 class="index__name">Content Repurposing</h3>
+          <p class="index__desc">One long-form video becomes multiple Reels, Shorts and social posts, maximising its reach.</p>
+          <span class="index__arrow" aria-hidden="true"></span>
+        </li>
+        <li class="index__row" data-preview="assets/video/stock/pixelclip5.mp4?v=4">
+          <span class="index__num">05</span>
+          <h3 class="index__name">Thumbnail Design</h3>
+          <p class="index__desc">Professional thumbnails that attract clicks and improve your videos' CTR.</p>
+          <span class="index__arrow" aria-hidden="true"></span>
+        </li>
+        <li class="index__row" data-preview="assets/video/stock/pixelclip2.mp4?v=4">
+          <span class="index__num">06</span>
+          <h3 class="index__name">Social Media Management</h3>
+          <p class="index__desc">From planning and scheduling to publishing and account management — your complete social presence, handled.</p>
+          <span class="index__arrow" aria-hidden="true"></span>
+        </li>
+      </ul>
+      <!-- Floating ambient preview (stock texture, follows the cursor on desktop) -->
+      <div class="index__preview" id="servicePreview" aria-hidden="true">
+        <video muted loop playsinline preload="none"></video>
+      </div>
     </div>
   </section>
 
-  <!-- ============================= WORK ============================= -->
-  <section class="band wrap" id="work" aria-labelledby="workHeading">
-    <p class="eyebrow">Selected work</p>
-    <h2 id="workHeading">Real deliverables, every format.</h2>
-    <div class="work-grid">
+  <!-- ============================= WORK (long form | short form) ============================= -->
+  <section class="work" id="work" aria-labelledby="workHeading">
+    <div class="container">
+      <div class="section__head section__head--wide">
+        <div>
+          <p class="eyebrow" data-reveal>Selected work</p>
+          <h2 id="workHeading" data-split="lines">Long form. Short form. Same team.</h2>
+        </div>
+        <p class="section__lede" data-reveal>One long-form video becomes multiple Reels, Shorts and social posts, maximising its reach.</p>
+      </div>
+    </div>
 
-      <article class="work-tile work-tile--portrait">
-        <button class="work-tile__trigger" data-video="assets/video/client/sohail-villa.mp4?v=2" aria-label="Play Property Reel — Varca Villa">
-          <img class="work-tile__poster" src="assets/video/client/sohail-villa-poster.jpg?v=2" alt="" loading="lazy">
-          <video class="work-tile__video" muted loop playsinline preload="none"></video>
-          <span class="work-tile__meta">
-            <span class="work-tile__title">Property Reel — Varca Villa <em class="todo" data-todo="confirm client name">TODO: client name</em></span>
-            <span class="work-tile__format">9:16</span>
-          </span>
-        </button>
-      </article>
+    <div class="split container" id="workSplit">
+      <div class="split__col split__col--long" id="colLong">
+        <header class="split__head">
+          <p class="split__title"><span>01</span>Long form</p>
+          <p class="split__meta hud">16:9 · Podcasts &amp; YouTube</p>
+        </header>
+        <div class="split__list" id="longList">
+          <article class="tile tile--landscape" data-video="assets/video/client/podcast-trailer-2.mp4?v=4" data-title="Podcast Trailer" data-format="16:9 · 1:19">
+            <button class="tile__btn" aria-label="Play Podcast Trailer">
+              <img class="tile__poster" src="assets/video/client/podcast-trailer-2-poster.jpg?v=4" alt="" loading="lazy" width="1280" height="720">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">01</span>
+              <span class="tile__title">Podcast Trailer <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">16:9 · Trailer · 1:19</span>
+            </div>
+          </article>
+          <article class="tile tile--landscape" data-video="assets/video/client/podcast-trailer-1.mp4?v=4" data-title="Podcast Trailer" data-format="16:9 · 1:08">
+            <button class="tile__btn" aria-label="Play Podcast Trailer">
+              <img class="tile__poster" src="assets/video/client/podcast-trailer-1-poster.jpg?v=4" alt="" loading="lazy" width="1280" height="720">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">02</span>
+              <span class="tile__title">Podcast Trailer <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">16:9 · Trailer · 1:08</span>
+            </div>
+          </article>
+          <article class="tile tile--landscape" data-video="assets/video/client/podcast-trailer-3.mp4?v=4" data-title="Podcast Trailer" data-format="16:9 · 0:45">
+            <button class="tile__btn" aria-label="Play Podcast Trailer">
+              <img class="tile__poster" src="assets/video/client/podcast-trailer-3-poster.jpg?v=4" alt="" loading="lazy" width="1280" height="720">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">03</span>
+              <span class="tile__title">Podcast Trailer <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">16:9 · Trailer · 0:45</span>
+            </div>
+          </article>
+          <div class="tile tile--more">
+            <p>More long-form work available on request.</p>
+            <a class="btn btn--ghost btn--small" href="#book-url" data-todo="booking URL">Book a call</a>
+          </div>
+        </div>
+      </div>
 
-      <article class="work-tile work-tile--landscape">
-        <button class="work-tile__trigger" data-video="assets/video/client/podcast-trailer-1.mp4?v=2" aria-label="Play Podcast Trailer">
-          <img class="work-tile__poster" src="assets/video/client/podcast-trailer-1-poster.jpg?v=2" alt="" loading="lazy">
-          <video class="work-tile__video" muted loop playsinline preload="none"></video>
-          <span class="work-tile__meta">
-            <span class="work-tile__title">Podcast Trailer <em class="todo" data-todo="confirm client name">TODO: client name</em></span>
-            <span class="work-tile__format">16:9</span>
-          </span>
-        </button>
-      </article>
+      <div class="split__rule" aria-hidden="true"><span id="splitRule"></span></div>
 
-      <article class="work-tile work-tile--portrait">
-        <button class="work-tile__trigger" data-video="assets/video/client/land-plot.mp4?v=2" aria-label="Play Property Reel — Land &amp; Heritage Home">
-          <img class="work-tile__poster" src="assets/video/client/land-plot-poster.jpg?v=2" alt="" loading="lazy">
-          <video class="work-tile__video" muted loop playsinline preload="none"></video>
-          <span class="work-tile__meta">
-            <span class="work-tile__title">Property Reel — Land &amp; Heritage Home <em class="todo" data-todo="confirm client name">TODO: client name</em></span>
-            <span class="work-tile__format">9:16</span>
-          </span>
-        </button>
-      </article>
-
-      <article class="work-tile work-tile--landscape">
-        <button class="work-tile__trigger" data-video="assets/video/client/podcast-trailer-2.mp4?v=2" aria-label="Play Podcast Trailer">
-          <img class="work-tile__poster" src="assets/video/client/podcast-trailer-2-poster.jpg?v=2" alt="" loading="lazy">
-          <video class="work-tile__video" muted loop playsinline preload="none"></video>
-          <span class="work-tile__meta">
-            <span class="work-tile__title">Podcast Trailer <em class="todo" data-todo="confirm client name">TODO: client name</em></span>
-            <span class="work-tile__format">16:9</span>
-          </span>
-        </button>
-      </article>
-
-      <article class="work-tile work-tile--portrait">
-        <button class="work-tile__trigger" data-video="assets/video/client/dubai-rental-yields.mp4?v=2" aria-label="Play Property Reel — Dubai Rental Yields">
-          <img class="work-tile__poster" src="assets/video/client/dubai-rental-yields-poster.jpg?v=2" alt="" loading="lazy">
-          <video class="work-tile__video" muted loop playsinline preload="none"></video>
-          <span class="work-tile__meta">
-            <span class="work-tile__title">Property Reel — Dubai Rental Yields <em class="todo" data-todo="confirm client name">TODO: client name</em></span>
-            <span class="work-tile__format">9:16</span>
-          </span>
-        </button>
-      </article>
-
-      <article class="work-tile work-tile--portrait">
-        <button class="work-tile__trigger" data-video="assets/video/client/dubai-investment.mp4?v=2" aria-label="Play Property Reel — Dubai Investment">
-          <img class="work-tile__poster" src="assets/video/client/dubai-investment-poster.jpg?v=2" alt="" loading="lazy">
-          <video class="work-tile__video" muted loop playsinline preload="none"></video>
-          <span class="work-tile__meta">
-            <span class="work-tile__title">Property Reel — Dubai Investment <em class="todo" data-todo="confirm client name">TODO: client name</em></span>
-            <span class="work-tile__format">9:16</span>
-          </span>
-        </button>
-      </article>
-
-      <article class="work-tile work-tile--landscape">
-        <button class="work-tile__trigger" data-video="assets/video/client/podcast-trailer-3.mp4?v=2" aria-label="Play Podcast Trailer">
-          <img class="work-tile__poster" src="assets/video/client/podcast-trailer-3-poster.jpg?v=2" alt="" loading="lazy">
-          <video class="work-tile__video" muted loop playsinline preload="none"></video>
-          <span class="work-tile__meta">
-            <span class="work-tile__title">Podcast Trailer <em class="todo" data-todo="confirm client name">TODO: client name</em></span>
-            <span class="work-tile__format">16:9</span>
-          </span>
-        </button>
-      </article>
-
+      <div class="split__col split__col--short" id="colShort">
+        <header class="split__head">
+          <p class="split__title"><span>02</span>Short form</p>
+          <p class="split__meta hud">9:16 · Reels &amp; Shorts</p>
+        </header>
+        <div class="split__list split__list--grid" id="shortList">
+          <article class="tile tile--portrait" data-video="assets/video/client/doctor-formulations.mp4?v=4" data-title="Doctor Explainer — Formulations" data-format="9:16 · 1:38">
+            <button class="tile__btn" aria-label="Play Doctor Explainer Formulations">
+              <img class="tile__poster" src="assets/video/client/doctor-formulations-poster.jpg?v=4" alt="" loading="lazy" width="720" height="1280">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">01</span>
+              <span class="tile__title">Doctor Explainer — Formulations <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">9:16 · Reel · 1:38</span>
+            </div>
+          </article>
+          <article class="tile tile--portrait" data-video="assets/video/client/creator-style.mp4?v=4" data-title="Creator Reel — Style &amp; Trends" data-format="9:16 · 1:05">
+            <button class="tile__btn" aria-label="Play Creator Reel Style and Trends">
+              <img class="tile__poster" src="assets/video/client/creator-style-poster.jpg?v=4" alt="" loading="lazy" width="720" height="1280">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">02</span>
+              <span class="tile__title">Creator Reel — Style &amp; Trends <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">9:16 · Reel · 1:05</span>
+            </div>
+          </article>
+          <article class="tile tile--portrait" data-video="assets/video/client/property-2bhk.mp4?v=4" data-title="Property Reel — 2BHK Davorlim" data-format="9:16 · 0:38">
+            <button class="tile__btn" aria-label="Play Property Reel 2BHK Davorlim">
+              <img class="tile__poster" src="assets/video/client/property-2bhk-poster.jpg?v=4" alt="" loading="lazy" width="720" height="1280">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">03</span>
+              <span class="tile__title">Property Reel — 2BHK Davorlim <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">9:16 · Reel · 0:38</span>
+            </div>
+          </article>
+          <article class="tile tile--portrait" data-video="assets/video/client/creator-jewellery.mp4?v=4" data-title="Creator Reel — Jewellery Picks" data-format="9:16 · 0:41">
+            <button class="tile__btn" aria-label="Play Creator Reel Jewellery Picks">
+              <img class="tile__poster" src="assets/video/client/creator-jewellery-poster.jpg?v=4" alt="" loading="lazy" width="720" height="1280">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">04</span>
+              <span class="tile__title">Creator Reel — Jewellery Picks <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">9:16 · Reel · 0:41</span>
+            </div>
+          </article>
+          <article class="tile tile--portrait" data-video="assets/video/client/doctor-vitamins.mp4?v=4" data-title="Doctor Explainer — Vitamin Deficiency" data-format="9:16 · 0:58">
+            <button class="tile__btn" aria-label="Play Doctor Explainer Vitamin Deficiency">
+              <img class="tile__poster" src="assets/video/client/doctor-vitamins-poster.jpg?v=4" alt="" loading="lazy" width="720" height="1280">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">05</span>
+              <span class="tile__title">Doctor Explainer — Vitamin Deficiency <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">9:16 · Reel · 0:58</span>
+            </div>
+          </article>
+          <article class="tile tile--portrait" data-video="assets/video/client/dubai-rental-yields.mp4?v=4" data-title="Property Reel — Dubai Rental Yields" data-format="9:16 · 0:29">
+            <button class="tile__btn" aria-label="Play Property Reel Dubai Rental Yields">
+              <img class="tile__poster" src="assets/video/client/dubai-rental-yields-poster.jpg?v=4" alt="" loading="lazy" width="720" height="1280">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">06</span>
+              <span class="tile__title">Property Reel — Dubai Rental Yields <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">9:16 · Reel · 0:29</span>
+            </div>
+          </article>
+          <article class="tile tile--portrait" data-video="assets/video/client/doctor-hair-loss.mp4?v=4" data-title="Doctor Explainer — Hair Loss" data-format="9:16 · 0:39">
+            <button class="tile__btn" aria-label="Play Doctor Explainer Hair Loss">
+              <img class="tile__poster" src="assets/video/client/doctor-hair-loss-poster.jpg?v=4" alt="" loading="lazy" width="720" height="1280">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">07</span>
+              <span class="tile__title">Doctor Explainer — Hair Loss <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">9:16 · Reel · 0:39</span>
+            </div>
+          </article>
+          <article class="tile tile--portrait" data-video="assets/video/client/sohail-villa.mp4?v=4" data-title="Property Reel — Varca Villa" data-format="9:16 · 0:40">
+            <button class="tile__btn" aria-label="Play Property Reel Varca Villa">
+              <img class="tile__poster" src="assets/video/client/sohail-villa-poster.jpg?v=4" alt="" loading="lazy" width="720" height="1280">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">08</span>
+              <span class="tile__title">Property Reel — Varca Villa <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">9:16 · Reel · 0:40</span>
+            </div>
+          </article>
+          <article class="tile tile--portrait" data-video="assets/video/client/property-twin-villa.mp4?v=4" data-title="Property Reel — Twin Villa" data-format="9:16 · 0:37">
+            <button class="tile__btn" aria-label="Play Property Reel Twin Villa">
+              <img class="tile__poster" src="assets/video/client/property-twin-villa-poster.jpg?v=4" alt="" loading="lazy" width="720" height="1280">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">09</span>
+              <span class="tile__title">Property Reel — Twin Villa <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">9:16 · Reel · 0:37</span>
+            </div>
+          </article>
+          <article class="tile tile--portrait" data-video="assets/video/client/land-plot.mp4?v=4" data-title="Property Reel — Land &amp; Heritage Home" data-format="9:16 · 1:02">
+            <button class="tile__btn" aria-label="Play Property Reel Land and Heritage Home">
+              <img class="tile__poster" src="assets/video/client/land-plot-poster.jpg?v=4" alt="" loading="lazy" width="720" height="1280">
+              <video class="tile__video" muted loop playsinline preload="none"></video>
+              <span class="tile__veil"></span>
+            </button>
+            <div class="tile__meta">
+              <span class="tile__index">10</span>
+              <span class="tile__title">Property Reel — Land &amp; Heritage Home <em class="todo" data-todo="confirm client name">client name</em></span>
+              <span class="tile__format">9:16 · Reel · 1:02</span>
+            </div>
+          </article>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- ============================= WHY US ============================= -->
-  <section class="band wrap" id="why-us" aria-labelledby="whyHeading">
-    <p class="eyebrow">Why Think &amp; Make</p>
-    <h2 id="whyHeading">Why brands choose Think &amp; Make</h2>
-    <div class="grid grid--why">
-      <div class="chip">Fast Turnaround</div>
-      <div class="chip">Strategy-Driven Content</div>
-      <div class="chip">High-Retention Editing</div>
-      <div class="chip">Dedicated Support</div>
-      <div class="chip">Unlimited Revisions</div>
-      <div class="chip">End-to-End Personal Branding</div>
+  <section class="section why" id="why-us" aria-labelledby="whyHeading">
+    <div class="container why__grid">
+      <div class="why__lead">
+        <p class="eyebrow" data-reveal>Why Think &amp; Make</p>
+        <h2 id="whyHeading" data-split="lines">Why brands choose Think &amp; Make</h2>
+      </div>
+      <ul class="proof" id="proof">
+        <li class="proof__item"><span>01</span>Fast Turnaround</li>
+        <li class="proof__item"><span>02</span>Strategy-Driven Content</li>
+        <li class="proof__item"><span>03</span>High-Retention Editing</li>
+        <li class="proof__item"><span>04</span>Dedicated Support</li>
+        <li class="proof__item"><span>05</span>Unlimited Revisions</li>
+        <li class="proof__item"><span>06</span>End-to-End Personal Branding</li>
+      </ul>
     </div>
   </section>
 
   <!-- ============================= PROCESS ============================= -->
-  <section class="band wrap" id="process" aria-labelledby="processHeading">
-    <p class="eyebrow">Our process</p>
-    <h2 id="processHeading">From call to delivery.</h2>
-    <ol class="timeline">
-      <li class="timeline__step"><span class="timeline__index">01</span><span class="timeline__label">Discovery Call</span></li>
-      <li class="timeline__step"><span class="timeline__index">02</span><span class="timeline__label">Content Strategy</span></li>
-      <li class="timeline__step"><span class="timeline__index">03</span><span class="timeline__label">Editing &amp; Design</span></li>
-      <li class="timeline__step"><span class="timeline__index">04</span><span class="timeline__label">Review &amp; Feedback</span></li>
-      <li class="timeline__step"><span class="timeline__index">05</span><span class="timeline__label">Delivery &amp; Growth</span></li>
-    </ol>
+  <section class="section process" id="process" aria-labelledby="processHeading">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow" data-reveal>Our process</p>
+        <h2 id="processHeading" data-split="lines">From call to delivery.</h2>
+      </div>
+      <ol class="steps" id="steps">
+        <div class="steps__line" aria-hidden="true"><span id="stepsLine"></span></div>
+        <li class="step"><span class="step__dot"></span><span class="step__num">01</span><span class="step__label">Discovery Call</span></li>
+        <li class="step"><span class="step__dot"></span><span class="step__num">02</span><span class="step__label">Content Strategy</span></li>
+        <li class="step"><span class="step__dot"></span><span class="step__num">03</span><span class="step__label">Editing &amp; Design</span></li>
+        <li class="step"><span class="step__dot"></span><span class="step__num">04</span><span class="step__label">Review &amp; Feedback</span></li>
+        <li class="step"><span class="step__dot"></span><span class="step__num">05</span><span class="step__label">Delivery &amp; Growth</span></li>
+      </ol>
+    </div>
   </section>
 
-  <!-- ============================= REVIEWS (empty state) ============================= -->
-  <section class="band wrap" id="reviews" aria-labelledby="reviewsHeading">
-    <p class="eyebrow">Reviews</p>
-    <h2 id="reviewsHeading">What clients say</h2>
-    <div class="empty-state">
-      <p>Reviews are on their way — real client quotes will appear here once they're collected. <span class="todo" data-todo="collect 3 client reviews: name, role, 1-2 lines each">TODO: add 3 reviews</span></p>
+  <!-- ============================= REVIEWS (designed empty state, nothing invented) ============================= -->
+  <section class="section reviews" id="reviews" aria-labelledby="reviewsHeading">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow" data-reveal>Reviews</p>
+        <h2 id="reviewsHeading" data-split="lines">What clients say</h2>
+      </div>
+      <div class="empty" data-reveal>
+        <p>Reviews are on their way — real client quotes will appear here once they're collected.</p>
+        <span class="todo" data-todo="collect 3 client reviews: name, role, 1-2 lines each">add 3 reviews</span>
+      </div>
     </div>
   </section>
 
   <!-- ============================= TEAM ============================= -->
-  <section class="band wrap" id="team" aria-labelledby="teamHeading">
-    <p class="eyebrow">The people behind Think &amp; Make</p>
-    <h2 id="teamHeading">A small team, built for range.</h2>
-    <p class="section-lede">Together, we combine strategy, creativity and execution to help creators, founders and businesses build personal brands that stand out.</p>
-    <div class="grid grid--team">
-      <article class="team-card">
-        <img src="assets/img/team/sneha.webp?v=2" alt="Sneha Khan" loading="lazy" width="720" height="960">
-        <h3>Sneha Khan</h3>
-        <p class="team-card__role">Founder &amp; Operations Director</p>
-        <p>Leads operations at Think &amp; Make — manages client projects, coordinates the editing team, keeps workflows running, and makes sure every project is delivered on time and to standard.</p>
-        <ul class="tags">
-          <li>Project Management</li><li>Team Leadership</li><li>Quality Control</li><li>Client Success</li>
-        </ul>
-      </article>
-      <article class="team-card">
-        <img src="assets/img/team/hamza.webp?v=2" alt="Hamza Khan" loading="lazy" width="720" height="960">
-        <h3>Hamza Khan</h3>
-        <p class="team-card__role">Co-Founder &amp; Growth Strategist</p>
-        <p class="team-card__stat">6+ years editing · 50+ projects delivered</p>
-        <p>Leads marketing, content strategy and social media growth — helping founders and businesses build personal brands that attract attention and build trust.</p>
-        <ul class="tags">
-          <li>Content Strategy</li><li>Personal Branding</li><li>Social Growth</li><li>Marketing Strategy</li><li>Creative Direction</li>
-        </ul>
-      </article>
-      <article class="team-card">
-        <img src="assets/img/team/rahul.webp?v=2" alt="Rahul" loading="lazy" width="720" height="960">
-        <h3>Rahul</h3>
-        <p class="team-card__role">Senior Video Editor</p>
-        <p class="team-card__stat">8+ years experience · 500+ videos edited</p>
-        <p>Specialises in cinematic storytelling and high-retention editing, turning raw footage into content that keeps audiences watching.</p>
-        <ul class="tags">
-          <li>Video Editing</li><li>Storytelling</li><li>Motion Graphics</li><li>Creative Editing</li><li>Visual Storytelling</li>
-        </ul>
-      </article>
+  <section class="section team" id="team" aria-labelledby="teamHeading">
+    <div class="container">
+      <div class="section__head section__head--wide">
+        <div>
+          <p class="eyebrow" data-reveal>The people behind Think &amp; Make</p>
+          <h2 id="teamHeading" data-split="lines">A small team, built for range.</h2>
+        </div>
+        <p class="section__lede" data-reveal>Together, we combine strategy, creativity and execution to help creators, founders and businesses build personal brands that stand out.</p>
+      </div>
+      <div class="team__grid">
+        <article class="member" data-reveal>
+          <div class="member__img" data-tilt><img src="assets/img/team/sneha.webp?v=4" alt="Sneha Khan" loading="lazy" width="720" height="960"></div>
+          <h3>Sneha Khan</h3>
+          <p class="member__role">Founder &amp; Operations Director</p>
+          <p class="member__bio">Leads operations at Think &amp; Make — manages client projects, coordinates the editing team, keeps workflows running, and makes sure every project is delivered on time and to standard.</p>
+          <ul class="tags"><li>Project Management</li><li>Team Leadership</li><li>Quality Control</li><li>Client Success</li></ul>
+        </article>
+        <article class="member" data-reveal>
+          <div class="member__img" data-tilt><img src="assets/img/team/hamza.webp?v=4" alt="Hamza Khan" loading="lazy" width="720" height="960"></div>
+          <h3>Hamza Khan</h3>
+          <p class="member__role">Co-Founder &amp; Growth Strategist</p>
+          <p class="member__stat">6+ years editing · 50+ projects delivered</p>
+          <p class="member__bio">Leads marketing, content strategy and social media growth — helping founders and businesses build personal brands that attract attention and build trust.</p>
+          <ul class="tags"><li>Content Strategy</li><li>Personal Branding</li><li>Social Growth</li><li>Marketing Strategy</li><li>Creative Direction</li></ul>
+        </article>
+        <article class="member" data-reveal>
+          <div class="member__img" data-tilt><img src="assets/img/team/rahul.webp?v=4" alt="Rahul" loading="lazy" width="720" height="960"></div>
+          <h3>Rahul</h3>
+          <p class="member__role">Senior Video Editor</p>
+          <p class="member__stat">8+ years experience · 500+ videos edited</p>
+          <p class="member__bio">Specialises in cinematic storytelling and high-retention editing, turning raw footage into content that keeps audiences watching.</p>
+          <ul class="tags"><li>Video Editing</li><li>Storytelling</li><li>Motion Graphics</li><li>Creative Editing</li><li>Visual Storytelling</li></ul>
+        </article>
+      </div>
     </div>
   </section>
 
   <!-- ============================= CTA / BOOK ============================= -->
-  <section class="band wrap band--close" id="book" aria-labelledby="bookHeading">
-    <p class="eyebrow">Ready when you are</p>
-    <h2 id="bookHeading">Ready to build your personal brand?</h2>
-    <p class="section-lede">Let's turn your content into a brand that people remember.</p>
-    <a class="btn btn--primary btn--large" href="#book-url" data-todo="booking URL">Book a Free Discovery Call</a>
+  <section class="book" id="book" aria-labelledby="bookHeading">
+    <div class="book__bg" aria-hidden="true"><img src="assets/img/stock/spotlight-grade.webp?v=4" alt="" loading="lazy" width="1200" height="1800" id="bookBg"></div>
+    <div class="container book__content">
+      <p class="eyebrow" data-reveal>Ready when you are</p>
+      <h2 id="bookHeading" data-split="lines">Ready to build your personal brand?</h2>
+      <p class="section__lede" data-reveal>Let's turn your content into a brand that people remember.</p>
+      <div data-reveal><a class="btn btn--primary btn--large" href="#book-url" data-todo="booking URL" data-magnetic>Book a Free Discovery Call</a></div>
+    </div>
   </section>
 
 </main>
 
 <!-- ============================= FOOTER ============================= -->
 <footer class="footer">
-  <div class="footer__top container">
-    <a class="nav__brand" href="#top">
-      <img src="assets/img/brand/logo.png?v=2" alt="Think & Make" width="28" height="28">
+  <div class="container footer__top">
+    <a class="nav__brand" href="#top" data-scroll>
+      <img src="assets/img/brand/logo.png?v=4" alt="" width="28" height="28">
       <span>Think &amp; Make</span>
     </a>
-    <div class="footer__links">
-      <a href="#work">Work</a>
-      <a href="#services">Services</a>
-      <a href="#process">Process</a>
-      <a href="#team">Team</a>
-    </div>
+    <nav class="footer__links" aria-label="Footer">
+      <a href="#work" data-scroll>Work</a>
+      <a href="#services" data-scroll>Services</a>
+      <a href="#process" data-scroll>Process</a>
+      <a href="#team" data-scroll>Team</a>
+    </nav>
     <div class="footer__social">
       <a href="https://www.linkedin.com/in/thinkandmake-agency-050558420/" target="_blank" rel="noopener">LinkedIn</a>
       <a href="https://www.instagram.com/thinkandmakeofficial/" target="_blank" rel="noopener">Instagram</a>
@@ -374,15 +581,29 @@
       <a href="#youtube-url" data-todo="YouTube handle">YouTube</a>
     </div>
   </div>
-  <div class="footer__bottom container">
+  <p class="footer__wordmark" aria-hidden="true">Think &amp; Make</p>
+  <div class="container footer__bottom">
     <p>&copy; 2026 Think &amp; Make. All rights reserved.</p>
-    <p><a href="#contact-email" data-todo="contact email">Contact</a> · <span class="todo" data-todo="confirm domain">TODO: domain</span></p>
+    <p><a href="#contact-email" data-todo="contact email">Contact</a> · <span class="todo" data-todo="confirm domain">domain</span></p>
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
-<script src="js/site.js" defer></script>
-<script src="js/story.js" defer></script>
+<!-- ============================= LIGHTBOX ============================= -->
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lightbox__close" id="lightboxClose" aria-label="Close">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+  <div class="lightbox__stage">
+    <video id="lightboxVideo" controls playsinline preload="metadata"></video>
+  </div>
+  <p class="lightbox__meta hud"><span id="lightboxTitle"></span><span id="lightboxFormat"></span></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js" defer></script>
+<script src="js/site.js?v=4" defer></script>
+<script src="js/story.js?v=4" defer></script>
 </body>
 </html>

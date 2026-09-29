@@ -1,6 +1,6 @@
 # Think & Make — site
 
-Static site. No framework, no build step, no npm install. GSAP + ScrollTrigger are loaded via CDN for the pinned scroll story only (see `ASSET-INVENTORY.md`'s Phase 0 report for why this replaced the originally-planned React option).
+Static site for a personal-branding and video-editing studio. No framework, no build step, no `npm install`. Motion is done with GSAP 3.13 (ScrollTrigger + SplitText, both free since 3.13) and Lenis smooth scroll, loaded from jsDelivr. If the CDN is blocked, the page degrades to a fully readable static site.
 
 ## Structure
 
@@ -8,70 +8,86 @@ Static site. No framework, no build step, no npm install. GSAP + ScrollTrigger a
 /
   index.html
   css/site.css
-  js/site.js          nav, marquee, work-grid hover/tap-to-play, off-screen video pausing
-  js/story.js          pinned scroll story (GSAP ScrollTrigger)
-  assets/               derived, web-optimised media only — never hand-edit, re-run tools/build-assets.ps1
-  source-assets/        raw footage, brief, docx, reference build — not deployed
-  tools/build-assets.ps1
+  js/site.js                preloader, smooth scroll, nav, cursor, hero showreel, reveals,
+                            services preview, work split + lightbox, marquee, process line
+  js/story.js               pinned scroll story (one scrubbed GSAP timeline)
+  assets/                   derived, web-optimised media only — never hand-edit
+    img/                    brand mark, duotone team portraits, stock plates
+    video/client/           the 14 derived client pieces (true colour) + posters
+    video/hero/             pre-graded 8s showreel loops (landscape + portrait sets)
+    video/story/            small loops for the pinned story
+    video/stock/            stock B-roll, texture only
+  source-assets/            raw footage, brief, docx, reference build — gitignored, not deployed
+    drive-2026-09/          second batch of client reels from the Drive folder
+  tools/build-assets.ps1    source-assets/ -> assets/ (first seven client clips, stock, team, logo)
+  tools/build-motion-assets.py   second batch -> client clips; client clips -> hero/story loops + posters
   ASSET-INVENTORY.md
   STORY-CONCEPT.md
+  _headers                  Cloudflare Pages cache rules
 ```
+
+## What is on the page
+
+1. **Preloader** — frame counter + render bar, then a curtain wipe. Skipped on repeat visits within a session and under `prefers-reduced-motion`.
+2. **Hero / showreel** — full-bleed hard-cut montage of three real client clips (pre-graded to the brand's muted-at-rest look), kinetic headline, HUD chrome (timecode, reel counter, segment bar). Portrait viewports get a portrait set of clips so nothing is centre-cropped.
+3. **Manifesto** — the studio's one-sentence positioning, words brighten as you scroll.
+4. **Pinned story** — five beats (Discovery → Strategy → Edit → Retention → Delivery): raw muted dailies scatter, converge into a stack, become one graded portrait reel, hard-cut to a landscape podcast trailer, then settle into a row of finished tiles. See `STORY-CONCEPT.md`.
+5. **Marquee** — services ticker that speeds up and leans with scroll velocity.
+6. **Services** — index list; on desktop an ambient stock-texture preview follows the cursor.
+7. **Selected work** — a split: **long form** (16:9) on the left, **short form** (9:16) on the right, each column with its own sticky header, a divider that draws as you scroll, and a gentle counter-scroll on the short-form column. Columns stack on mobile. Hover plays the clip in colour with a "Play" cursor; click opens a lightbox with native controls. New pieces go in whichever column matches their format.
+8. **Why / Process / Reviews / Team / CTA / Footer** — reveals, a drawing process line, portrait tilt, magnetic buttons.
+
+Every factual string (services, team bios, stats, social handles) is unchanged from the previous build, which was checked against `HamzaWebsite.docx`. Tile titles are neutral descriptors of what is on screen, plus the clip's real duration. Nothing new was invented. Background is true black at the client's request (2026-09-29).
 
 ## Regenerating assets
 
-If new or updated footage lands in `source-assets/`, re-run:
+Two scripts, run in this order. Both are idempotent.
 
 ```powershell
+# 1. Raw source material -> web-optimised client clips, stock, team, logo (needs source-assets/)
 powershell -File tools/build-assets.ps1
+
+# 2. Second-batch reels -> client clips (if source-assets/drive-2026-09/ is present),
+#    then client clips -> hero showreel loops, story loops, larger posters
+python tools/build-motion-assets.py
 ```
 
-It derives everything in `assets/` from `source-assets/` via ffmpeg/ffprobe — muted, web-optimised client clips with poster frames, the Sohail Varca Villa Airbnb-badge window (27–32s) excised, stock B-roll compressed for background use, team photos crop-normalised and pushed through the brand's three-stop duotone grade, and the logo background keyed to transparent. Nothing in `assets/` is hand-processed; if it looks wrong, fix the script, not the file.
+Both need `ffmpeg` on PATH (the Python script also accepts the `imageio-ffmpeg` pip package). The second script only reads `source-assets/drive-2026-09/` for the second batch and never touches the first seven sources, so the Airbnb-badge excision in the Sohail Varca Villa clip (done in step 1) cannot be undone by it. Download the Drive folder into `source-assets/drive-2026-09/` to re-derive the second batch; the committed files in `assets/` are already up to date.
 
 ## Local preview
 
-Works directly from `file://` — just open `index.html`.
-
-To preview from a local static server instead (closer to how Cloudflare Pages will serve it):
+Video needs HTTP Range requests, which Python's `http.server` does not support. Use one of:
 
 ```powershell
-python -m http.server 8080
-# or, if you have Node:
 npx --yes serve .
+# or any static server with Range support; Cloudflare Pages preview also works
 ```
-
-Then visit `http://localhost:8080`.
 
 ## Deploying to Cloudflare Pages
 
-This folder is the deploy target as-is (no build command, no output-directory setting needed):
+This folder is the deploy target as-is. Build command empty, output directory `/`. `_headers` marks `assets/*` immutable; every asset URL carries a `?v=N` query string, so bump `v` in `index.html` whenever an asset changes (currently `v=3`).
 
-1. **Drag-and-drop:** Cloudflare dashboard → Workers & Pages → Create → Pages → Upload assets → drag this whole folder in (excluding `source-assets/`, `probe/`, `tools/`, and the markdown docs if you want a minimal upload — they're harmless to include but not needed).
-2. **Git-connect:** push this repo to GitHub/GitLab, connect it in Cloudflare Pages, leave the build command empty and the output directory as `/`.
+## Still TODO (each ships with a visible marker in the page — search for `data-todo`)
 
-## What's still a TODO
+- **Booking URL** — every "Book a call" CTA points at `#book-url`.
+- **Contact email**, **YouTube handle**, **domain** — footer.
+- **Real client names** for the 7 work pieces — neutral descriptors until each client confirms.
+- **3 reviews** — designed empty state, nothing fabricated.
+- **Audio** — every derived client clip is muted, so the lightbox plays silently. To enable sound: set `KEEP_AUDIO = True` in `tools/build-motion-assets.py` (second batch) and drop `-an` from `Convert-ClientClip` in `tools/build-assets.ps1` (first seven), then re-run both.
+- **Phone-number end cards** — the Varca villa and twin-villa reels each end on the agent's phone number and call icons. Confirm the client is fine with it, as was done for the heritage-home reel.
+- **Fragrance review reel** (`final.mp4` on the Drive) — left off the site because third-party product branding is on screen throughout. One line in the build script adds it if the client is happy.
 
-Everything below ships with a visible `TODO` marker in the page itself (search the HTML for `data-todo`) rather than being silently missing or invented:
+## Known deviation from the brief
 
-- **Booking URL** — every "Book a call" / CTA link currently points at `#book-url`.
-- **Contact email** — footer "Contact" link.
-- **YouTube handle** — footer social row (LinkedIn, Instagram and Twitter are already wired to the real handles from `HamzaWebsite.docx`).
-- **Domain** — footer copyright line.
-- **Real client names** for the 7 Selected Work pieces — currently neutral descriptors ("Property Reel", "Podcast Trailer") per the Phase 0 decision; swap in real names once you confirm each client is OK being named.
-- **3 testimonials** — the Reviews section is a designed empty state, no fabricated quotes.
+"Unlimited Revisions" is kept in the Why section at the client's explicit request, overriding the brief's banned-claims list. See `ASSET-INVENTORY.md`.
 
-None of these block deployment; the site is fully functional and honest about what's missing rather than guessing.
+## Verification notes (2026-09-29)
 
-## Known deviation from the original brief
+Checked with Playwright + headless Chromium at 1440×900 and 390×844 (touch), scrolling every section and the full pinned sequence, plus a reduced-motion run and a CDN-blocked run:
 
-The brief's acceptance checklist (source-assets/claudecode.md §8) says `"Two rounds included"` should be present and `"unlimited revisions"` should be absent. During this build session you explicitly told me to keep **"Unlimited Revisions"** (matching `HamzaWebsite.docx`'s card copy) instead, overriding the brief's own banned-claims list. That's what's shipped. Flagging it here so it doesn't read as an oversight later — see `ASSET-INVENTORY.md`'s "Phase 0 report" section for the full decision log.
+- No console errors, no failed requests (other than the H.264 abort noted below), no horizontal overflow on either viewport.
+- Story beats activate in order (index, timecode, convergence, bloom, hard cut, settle) and reverse cleanly.
+- Work split: sticky column headers hold, divider draws, hover/play cursor works, lightbox opens (sized per format) and closes with Escape.
+- Reduced motion: no preloader, no smooth scroll, story renders as five static beats. CDN blocked: same static story, all content readable.
 
-## Verification notes (2026-08-07)
-
-What was actually checked this session, using a local `serve` static server (Python's `http.server` was tried first and rejected — it doesn't support HTTP Range requests, which `<video>` needs, so it isn't representative; use something like `serve` or Cloudflare's own preview for local testing):
-
-- **Pinned story sequence** — all 5 beats verified end-to-end: correct beat activates/deactivates at the right scroll progress, off-screen beats' video is paused, layout/positioning/labels are correct, the reduced-motion static fallback renders correctly (fixed a real bug found here — see below).
-- **Work grid, services, why-us, process, reviews (empty state), team, CTA, footer** — all visually verified, correct content, no fake testimonials, TODO markers visible where expected.
-- **Mobile at 390px width** — verified via an embedded iframe technique (this session's browser tool couldn't resize its own viewport): hamburger nav opens/closes correctly, work grid reflows to 2 columns, no horizontal scroll (`document.documentElement.scrollWidth` confirmed).
-- **Two real bugs found and fixed during this pass:** (1) a wrong poster image on one story layer, (2) `.beat__label`'s `position: absolute` rule wasn't scoped to the pinned stage, so it also hijacked the reduced-motion fallback's labels, stacking all five on top of each other — now scoped to `.story__stage .beat__label`.
-
-**What could not be verified this session:** actual video *playback* smoothness and the 60fps DevTools profiling target. The browser automation tool available in this session could not decode H.264 video at all — confirmed with an isolated test (a freshly generated, minimal baseline-profile synthetic clip also hung indefinitely on `.play()`), so this is an environment limitation, not a site defect. Poster images, layout, and timing logic are all confirmed correct; the video element `src`/play/pause wiring is straightforward standard HTML5 video, but **you should still do a real DevTools Performance recording of the pinned scroll on your own machine before calling this done** — that's the one acceptance-criteria item this session genuinely couldn't check. Total derived asset weight and initial page weight are worth a real Lighthouse/Network-panel pass too, for the same reason.
+**Not verifiable in that environment:** the headless Chromium build has no H.264 decoder, so every `<video>` showed its poster. Actual playback, the hero montage cuts, and the 60fps DevTools profile of the pinned sequence at 2560×1440 need a real browser on your machine before this is called done.
