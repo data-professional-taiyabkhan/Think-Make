@@ -13,19 +13,21 @@ The raw material (client footage, `HamzaWebsite.docx`, the brief `claudecode.md`
 If `source-assets/claudecode.md` is present, read it in full before changing copy or media placement. If it is not present (fresh clone), the rules below plus `ASSET-INVENTORY.md` are what you have; do not loosen them.
 
 - **Invent nothing.** Every factual claim (names, stats, client identities, testimonials) must already exist in the page or trace to the brief / docx. No fabricated testimonials, metrics, turnaround or retention numbers.
-- **Client work vs. stock is a hard boundary.** Only the derived `assets/video/client/*.mp4` pieces (the first seven from the brief plus the second batch listed in `ASSET-INVENTORY.md`, all client-cleared) may appear as work. `assets/video/stock/*` and `assets/img/stock/*` are backgrounds/texture only and must never be captioned or framed as client work. The fragrance-review reel from the second batch is deliberately not derived (third-party branding).
-- **Sohail Varca Villa** had an Airbnb badge at ~28.5–30.5s of the raw file. `build-assets.ps1` cuts 27–32s out; `build-motion-assets.py` only ever reads the already-cut derived clip. Never derive anything for that piece from `source-assets/` directly.
+- **Client work vs. stock is a hard boundary.** Only the derived `assets/video/client/*.mp4` pieces (the first seven from the brief plus the second batch listed in `ASSET-INVENTORY.md`, all client-cleared) may appear as work. `assets/video/stock/*` and `assets/img/stock/*` are backgrounds/texture only and must never be captioned or framed as client work. The fragrance-review reel shows third-party product branding; the client confirmed it is fine to show (2026-09-30).
+- **Sohail Varca Villa** had an Airbnb badge at ~28.5–30.5s of the raw file. Stage 0 of `build-motion-assets.py` cuts 27–32s out (video and audio together); stage 2 only ever reads the already-cut derived clip. Never derive anything for that piece from the raw file by any other route.
 - Client display names are unconfirmed. Keep the neutral descriptors and the visible `data-todo` markers until the owner confirms each one.
 - "Unlimited Revisions" stays (client override, documented in `ASSET-INVENTORY.md`).
 
 ## Asset pipeline
 
 ```
-source-assets/*  --tools/build-assets.ps1-->  assets/video/client, stock, img/*
-assets/video/client/*.mp4  --tools/build-motion-assets.py-->  assets/video/hero/*, assets/video/story/{edit,retention}-reel*, larger client posters
+source-assets/*             --tools/build-assets.ps1-->             assets/video/stock, assets/img/stock, assets/img/brand
+source-assets/*             --tools/build-motion-assets.py stage 0--> assets/video/client/* (first seven, Sohail excision, audio kept)
+source-assets/drive-2026-09 --tools/build-motion-assets.py stage 1--> assets/video/client/* (second batch, audio kept)
+assets/video/client/*.mp4   --tools/build-motion-assets.py stage 2--> assets/video/hero/*, assets/video/story/*, every *-poster.jpg
 ```
 
-Never hand-process a file in `assets/`; fix the script and re-run. Both scripts need `ffmpeg` on PATH (the Python one also accepts `imageio-ffmpeg`). After changing any asset, bump the `?v=N` query string in `index.html` (`_headers` caches `assets/*` as immutable).
+Stages 0 and 1 skip themselves when their source folder is absent, so a fresh clone still regenerates loops and posters from the committed client clips. Never hand-process a file in `assets/`; fix the script and re-run. Both scripts need `ffmpeg` on PATH (the Python one also accepts `imageio-ffmpeg`). After changing any asset, bump the `?v=N` query string in `index.html` (`_headers` caches `assets/*` as immutable). Client clips keep their audio (`KEEP_AUDIO = True`); hero and story loops are always silent because they autoplay.
 
 ## Environment
 
@@ -56,3 +58,4 @@ Headless Chromium builds shipped with Playwright have no H.264 decoder, so `<vid
 - Work section is a **long form (16:9) | short form (9:16)** split, at the client's request. New client pieces go into the column that matches their aspect ratio; both columns use the same `.tile` markup.
 - Type: Archivo (display, 800–900) · Instrument Sans (body) · IBM Plex Mono (labels/timecodes) — via Google Fonts, don't substitute Inter.
 - Client footage: muted at rest (~42% saturation, ~58% brightness, navy veil), full colour on hover/when the story "grades" it. Never permanently re-grade a client's finished work: the work-grid and lightbox files stay true colour; only the hero background loops are pre-graded.
+- Team section is names, roles and bios only: no portraits (client request 2026-09-30) and two people (Sneha Khan, Hamza Khan). Do not re-add photos or a third member without the client asking.

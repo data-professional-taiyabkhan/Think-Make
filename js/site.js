@@ -382,7 +382,7 @@
       });
     });
 
-    var staggerGroups = [['#serviceIndex', '.index__row'], ['#proof', '.proof__item'], ['#steps', '.step'], ['.team__grid', '.member']];
+    var staggerGroups = [['#serviceIndex', '.index__row'], ['#proof', '.proof__item'], ['#steps', '.step'], ['.credits', '.member']];
     staggerGroups.forEach(function (g) {
       var root = $(g[0]); if (!root) return;
       var items = $$(g[1], root); if (!items.length) return;
@@ -546,23 +546,6 @@
   if (bookBg && !reduceMotion) {
     gsap.fromTo(bookBg, { scale: 1 }, { scale: 1.14, ease: 'none',
       scrollTrigger: { trigger: '.book', start: 'top bottom', end: 'bottom top', scrub: true } });
-  }
-
-  /* ---------------------------------------------------------------------
-     Team portraits: light tilt toward the cursor
-     --------------------------------------------------------------------- */
-  if (finePointer && !reduceMotion) {
-    $$('[data-tilt]').forEach(function (el) {
-      gsap.set(el, { transformPerspective: 900 });
-      var rx = gsap.quickTo(el, 'rotationX', { duration: .6, ease: 'power3.out' });
-      var ry = gsap.quickTo(el, 'rotationY', { duration: .6, ease: 'power3.out' });
-      el.addEventListener('pointermove', function (e) {
-        var r = el.getBoundingClientRect();
-        var px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
-        rx(-py * 8); ry(px * 8);
-      });
-      el.addEventListener('pointerleave', function () { rx(0); ry(0); });
-    });
   }
 
   /* ---------------------------------------------------------------------

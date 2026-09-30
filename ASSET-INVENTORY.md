@@ -16,7 +16,7 @@ Compiled by probing every video with `ffprobe`, extracting and visually reviewin
 
 ## Client work — second batch (Google Drive, 2026-09-29)
 
-Shared by the owner as a Drive folder; Hamza confirmed each client's permission to showcase. Probed with `ffmpeg -i` and reviewed on 32-frame contact sheets. **All eight are 9:16 portrait with audio.** Derived by `tools/build-motion-assets.py` stage 1 (audio stripped to match the first seven; see the script header to change that). Raw files live in `source-assets/drive-2026-09/` (gitignored); the script accepts either the Drive title or its slugified filename.
+Shared by the owner as a Drive folder; Hamza confirmed each client's permission to showcase. Probed with `ffmpeg -i` and reviewed on 32-frame contact sheets. **All eight are 9:16 portrait with audio.** Derived by `tools/build-motion-assets.py` stage 1 with audio kept. Raw files live in `source-assets/drive-2026-09/` (gitignored); the script accepts either the Drive title or its slugified filename.
 
 | Drive title | Derived slug | Res / fps | Duration | What's actually in it | Placement notes |
 |---|---|---|---|---|---|
@@ -26,10 +26,10 @@ Shared by the owner as a Drive folder; Hamza confirmed each client's permission 
 | `final mithi m'aam.mp4` | `creator-style` | 1080×1920 30fps | 1:05 | Fashion creator talking head, bright kinetic captions, a couple of collage cut-ins. | Short form 02. Clean. |
 | `Mithii 8.mp4` | `creator-jewellery` | 1080×1920 30fps | 0:41 | Jewellery pieces (pendant, ear cuffs, neckpiece) with product close-ups, ends on "Comment your favorite". | Short form 04. Also the second mobile hero loop (0–8s). |
 | `Vivek 2bhk.mp4` | `property-2bhk` | 2160×3840 30fps | 0:38 | 2BHK apartment walkthrough in Davorlim, on-screen price (₹63 Lakh), satellite map, "Comment Flat" end card. No phone number seen. | Short form 03. 4K source, scaled to 720 like the rest. |
-| `Tony twin villa.mp4` | `property-twin-villa` | 1080×1920 30fps | 0:37 | Twin-villa 3BHK drone + walkthrough, satellite map, "Comment Villa" end card. **A phone number with call icons is burned in on the last ~4s** (the agent's own contact, same pattern as the Varca villa clip). | Short form 09. Confirm with the client, as for the Varca villa end card. |
-| `final.mp4` | — | 1080×1920 30fps | 0:43 | Fragrance review: third-party product names and bottle imagery on screen throughout. | **Not derived, not placed.** Add a row to `SOURCE_CLIPS` in the script if the client confirms it is fine to publish. |
+| `Tony twin villa.mp4` | `property-twin-villa` | 1080×1920 30fps | 0:37 | Twin-villa 3BHK drone + walkthrough, satellite map, "Comment Villa" end card. A phone number with call icons is burned in on the last ~4s (the agent's own contact). | Short form 09. **Client confirmed fine (2026-09-30).** |
+| `final.mp4` | `creator-fragrance` | 1080×1920 30fps | 0:43 | Fragrance review talking head; third-party product names and bottle imagery on screen throughout. | Short form 11. **Client confirmed fine (2026-09-30).** |
 
-Selection on the site: the Short form column shows the seven derived reels above plus three of the original portrait pieces (`dubai-rental-yields`, `sohail-villa`, `land-plot`). `dubai-investment` stays derived and in the story fallback but is off the grid for variety (same presenter as `dubai-rental-yields`).
+Selection on the site: the Short form column shows all eight second-batch reels plus the four original portrait pieces (twelve tiles). Audio: the second batch is derived with its audio (`KEEP_AUDIO = True`); the first seven stay silent until their raw files are present for stage 0 of the script.
 
 ## Stock B-roll (backgrounds/textures ONLY — never captioned as work)
 
@@ -52,13 +52,13 @@ Selection on the site: the Short form column shows the seven derived reels above
 |---|---|---|---|
 | `LOGOHamza.png` | square | "TM" ribbon-fold monogram — navy + light-blue ribbon on a cream (~`#FDF8F4`) background. Matches the locked palette exactly. | Nav/footer mark. Needs flood-fill background removal per brief §2.6. |
 
-## Team portraits
+## Team portraits (no longer used — client request 2026-09-30: names only, and Rahul removed from the team section)
 
 | File | What's actually in it | Placement notes |
 |---|---|---|
-| `Hamza.jpeg` | Outdoor full-body casual phone snap, green foliage backdrop, daylight with a slight green colour cast, subject relatively small in frame. | Team section. Needs crop-normalize (largest re-scale of the three, since it's a full-body shot) + duotone grade. |
-| `Sneha.jpeg` | Indoor café shot, waist-up and noticeably tighter-framed than the other two, warm mixed lighting, sunglasses indoors. | Team section. Biggest crop-normalize job — needs to be pulled back / re-framed to match head-to-frame ratio of the other two. |
-| `Rahul.jpeg` | Outdoor headshot-style portrait, palm-frond backdrop, neutral daylight. | Team section. Closest to a "standard" reference framing of the three; the other two should probably normalize toward this one. |
+| `Hamza.jpeg` | Outdoor full-body casual phone snap, green foliage backdrop, daylight with a slight green colour cast, subject relatively small in frame. | Not used. |
+| `Sneha.jpeg` | Indoor café shot, waist-up and noticeably tighter-framed than the other two, warm mixed lighting, sunglasses indoors. | Not used. |
+| `Rahul.jpeg` | Outdoor headshot-style portrait, palm-frond backdrop, neutral daylight. | Not used; Rahul is no longer listed. |
 
 ## Documents (source material, not deployable assets)
 

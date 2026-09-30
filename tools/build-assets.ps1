@@ -1,6 +1,15 @@
 <#
-Derives all web-optimised assets/ from the raw files in source-assets/.
-Re-run any time source-assets/ changes. Never hand-process output files.
+Derives the stock B-roll, stock stills and the brand mark in assets/ from the
+raw files in source-assets/. Re-run any time those change. Never hand-process
+output files.
+
+Client clips (all fifteen), their posters, the hero showreel loops and the
+pinned-story loops are derived by tools/build-motion-assets.py -- run that
+after this one. Until 2026-09-30 this script also derived the first seven
+client clips, the story thumbs and the duotone team portraits; the client
+clips moved to the Python script so audio is handled in one place, and the
+team section no longer uses photos.
+
 Requires ffmpeg + ffprobe on PATH (falls back to the known WinGet Links
 install location on this machine if the bare command isn't resolvable).
 #>
@@ -10,7 +19,6 @@ $ErrorActionPreference = 'Stop'
 $Root       = Split-Path -Parent $PSScriptRoot
 $Src        = Join-Path $Root 'source-assets'
 $Out        = Join-Path $Root 'assets'
-$ProbeDir   = Join-Path $Root 'probe'
 
 # ---------------------------------------------------------------------------
 # ffmpeg/ffprobe resolution
@@ -41,124 +49,10 @@ function Ensure-Dir([string]$Path) {
 # ---------------------------------------------------------------------------
 # Output layout
 # ---------------------------------------------------------------------------
-$VideoClient = Join-Path $Out 'video\client'
-$VideoStory  = Join-Path $Out 'video\story'
 $VideoStock  = Join-Path $Out 'video\stock'
 $ImgStock    = Join-Path $Out 'img\stock'
-$ImgTeam     = Join-Path $Out 'img\team'
 $ImgBrand    = Join-Path $Out 'img\brand'
-foreach ($d in @($VideoClient, $VideoStory, $VideoStock, $ImgStock, $ImgTeam, $ImgBrand)) { Ensure-Dir $d }
-
-# ---------------------------------------------------------------------------
-# Client work clips -> assets/video/client/<slug>.mp4 + <slug>-poster.jpg
-# Muted (site controls audio via the <video> element itself on hover/tap),
-# H.264 + faststart, capped resolution. Source stays true-colour; the
-# "muted at rest" look is CSS presentation chrome per brief 3.4, never baked in.
-# ---------------------------------------------------------------------------
-function Convert-ClientClip {
-    param(
-        [string]$SourceFile,
-        [string]$Slug,
-        [int]$Width,
-        [double]$PosterAt
-    )
-    $inPath  = Join-Path $Src $SourceFile
-    if (-not (Test-Path $inPath)) { throw "Missing source file: $inPath" }
-    $outVideo  = Join-Path $VideoClient "$Slug.mp4"
-    $outPoster = Join-Path $VideoClient "$Slug-poster.jpg"
-
-    Write-Host "client: $SourceFile -> $Slug.mp4" -ForegroundColor Cyan
-    Invoke-FF @(
-        '-i', $inPath,
-        '-an',
-        '-vf', "scale=$($Width):-2:flags=lanczos",
-        '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p',
-        '-crf', '25', '-preset', 'slow', '-movflags', '+faststart',
-        $outVideo
-    )
-    Invoke-FF @(
-        '-ss', "$PosterAt", '-i', $inPath, '-frames:v', '1',
-        '-vf', 'scale=480:-2:flags=lanczos', '-q:v', '6',
-        $outPoster
-    )
-}
-
-Convert-ClientClip -SourceFile '160 old V1 f3.mp4'        -Slug 'land-plot'            -Width 720  -PosterAt 15.5
-Convert-ClientClip -SourceFile 'Dubai real 12 f2.mp4'      -Slug 'dubai-rental-yields'  -Width 720  -PosterAt 11.5
-Convert-ClientClip -SourceFile 'Dubai Real3 final.mp4'     -Slug 'dubai-investment'     -Width 720  -PosterAt 12.9
-Convert-ClientClip -SourceFile 'ED podcast trailer final.mp4' -Slug 'podcast-trailer-1' -Width 1280 -PosterAt 16.9
-Convert-ClientClip -SourceFile 'faisaal pod trailer f2.mp4'   -Slug 'podcast-trailer-2' -Width 1280 -PosterAt 19.7
-Convert-ClientClip -SourceFile 'mens Poadcast F2.mp4'         -Slug 'podcast-trailer-3' -Width 1280 -PosterAt 11.2
-
-# ---------------------------------------------------------------------------
-# Sohail Varca Villa AI.mp4 — the Airbnb badge is confirmed at ~28.5-30.5s.
-# Grid/full version: cut 27s-32s out entirely (margin either side), never
-# trim-adjacent. Story-loop version: a short segment already outside that
-# window, no cut needed.
-# ---------------------------------------------------------------------------
-$sohailIn = Join-Path $Src 'Sohail Varca Villa AI.mp4'
-if (-not (Test-Path $sohailIn)) { throw "Missing source file: $sohailIn" }
-
-Write-Host 'client: Sohail Varca Villa AI.mp4 -> sohail-villa.mp4 (Airbnb window excised)' -ForegroundColor Cyan
-Invoke-FF @(
-    '-i', $sohailIn,
-    '-an',
-    '-filter_complex', "[0:v]trim=0:27,setpts=PTS-STARTPTS[a];[0:v]trim=32,setpts=PTS-STARTPTS[b];[a][b]concat=n=2:v=1:a=0,scale=720:-2:flags=lanczos[outv]",
-    '-map', '[outv]',
-    '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p',
-    '-crf', '25', '-preset', 'slow', '-movflags', '+faststart',
-    (Join-Path $VideoClient 'sohail-villa.mp4')
-)
-Invoke-FF @(
-    '-ss', '18', '-i', $sohailIn, '-frames:v', '1',
-    '-vf', 'scale=480:-2:flags=lanczos', '-q:v', '6',
-    (Join-Path $VideoClient 'sohail-villa-poster.jpg')
-)
-
-Write-Host 'story: Sohail Varca Villa AI.mp4 -> sohail-loop.mp4 (31-40s, outside Airbnb window)' -ForegroundColor Cyan
-Invoke-FF @(
-    '-ss', '31', '-t', '9', '-i', $sohailIn,
-    '-an',
-    '-vf', 'scale=400:-2:flags=lanczos',
-    '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p',
-    '-crf', '30', '-preset', 'slow', '-movflags', '+faststart',
-    (Join-Path $VideoStory 'sohail-loop.mp4')
-)
-Invoke-FF @(
-    '-ss', '35', '-i', $sohailIn, '-frames:v', '1',
-    '-vf', 'scale=480:-2:flags=lanczos', '-q:v', '6',
-    (Join-Path $VideoStory 'sohail-loop-poster.jpg')
-)
-
-# ---------------------------------------------------------------------------
-# Story-sized thumbnails: the pinned story displays reused client clips as
-# small ~220-320px floating cards (see css/site.css .story-layer), but the
-# work-grid versions of the same clips are encoded at 720-1280px for
-# full-tile playback. Serving that oversized file into a 220px card wastes
-# bandwidth for zero visual gain and was a real contributor to slow/glitchy
-# loading on first deploy. Derive small dedicated variants from source for
-# story use only; the client/ versions stay full-size for the work grid.
-# ---------------------------------------------------------------------------
-function Convert-StoryThumb {
-    param([string]$SourceFile, [string]$Slug, [int]$Width, [double]$TrimStart, [double]$TrimDur)
-    $inPath = Join-Path $Src $SourceFile
-    if (-not (Test-Path $inPath)) { throw "Missing source file: $inPath" }
-    $outVideo = Join-Path $VideoStory "$Slug-thumb.mp4"
-    Write-Host "story thumb: $SourceFile -> $Slug-thumb.mp4" -ForegroundColor DarkCyan
-    Invoke-FF @(
-        '-ss', "$TrimStart", '-t', "$TrimDur", '-i', $inPath,
-        '-an',
-        '-vf', "scale=$($Width):-2:flags=lanczos",
-        '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p',
-        '-crf', '30', '-preset', 'slow', '-movflags', '+faststart',
-        $outVideo
-    )
-}
-
-Convert-StoryThumb -SourceFile 'ED podcast trailer final.mp4' -Slug 'podcast-trailer-1' -Width 400 -TrimStart 10 -TrimDur 8
-Convert-StoryThumb -SourceFile 'mens Poadcast F2.mp4'         -Slug 'podcast-trailer-3' -Width 400 -TrimStart 8  -TrimDur 8
-Convert-StoryThumb -SourceFile '160 old V1 f3.mp4'            -Slug 'land-plot'         -Width 400 -TrimStart 40 -TrimDur 8
-Convert-StoryThumb -SourceFile 'Dubai Real3 final.mp4'        -Slug 'dubai-investment'  -Width 400 -TrimStart 5  -TrimDur 8
+foreach ($d in @($VideoStock, $ImgStock, $ImgBrand)) { Ensure-Dir $d }
 
 # ---------------------------------------------------------------------------
 # Stock B-roll (PixelClip1-6) -> assets/video/stock/pixelclipN.mp4
@@ -214,44 +108,6 @@ Convert-StockStill -SourceFile 'pexels-jakubzerdzicki-30229850.jpg' -Slug 'color
 Convert-StockStill -SourceFile 'pexels-ron-lach-8102674.jpg'     -Slug 'spotlight-grade'  -Width 1200
 
 # ---------------------------------------------------------------------------
-# Team photos -> assets/img/team/*.webp
-# All three source frames are the same 960x1280 canvas but framed very
-# differently (Phase 0 findings). Crop-normalise to a common 3:4 window
-# (same aspect ratio as the crop box itself, so scaling never distorts),
-# then push through the brief 3.2 three-stop duotone map on a
-# contrast-boosted greyscale.
-# ---------------------------------------------------------------------------
-# format=gray forces a single-plane frame so geq's p(X,Y) sampler is
-# unambiguous (lum(X,Y) is only defined for YUV frames and errors out once
-# the graph negotiates RGB for the downstream webp encoder).
-$DuotoneFilter = 'eq=contrast=1.2,format=gray,geq=' +
-    "r='if(lt(p(X,Y)/255,0.5), 6+(p(X,Y)/255/0.5)*(30-6), 30+((p(X,Y)/255-0.5)/0.5)*(232-30))':" +
-    "g='if(lt(p(X,Y)/255,0.5), 16+(p(X,Y)/255/0.5)*(96-16), 96+((p(X,Y)/255-0.5)/0.5)*(244-96))':" +
-    "b='if(lt(p(X,Y)/255,0.5), 32+(p(X,Y)/255/0.5)*(170-32), 170+((p(X,Y)/255-0.5)/0.5)*(254-170))'"
-
-function Convert-TeamPhoto {
-    param([string]$SourceFile, [string]$Slug, [string]$CropWHXY)
-    $inPath = Join-Path $Src $SourceFile
-    if (-not (Test-Path $inPath)) { throw "Missing source file: $inPath" }
-    $outPath = Join-Path $ImgTeam "$Slug.webp"
-    Write-Host "team: $SourceFile -> $Slug.webp" -ForegroundColor Cyan
-    Invoke-FF @(
-        '-i', $inPath,
-        '-vf', "crop=$($CropWHXY),scale=720:960:flags=lanczos,$DuotoneFilter",
-        '-c:v', 'libwebp', '-quality', '85',
-        $outPath
-    )
-}
-
-# crop=W:H:X:Y, all boxes held at 3:4 (W:H) so the later scale never distorts.
-# Hamza: full-body/small-in-frame -> tightest zoom-in.
-Convert-TeamPhoto -SourceFile 'Hamza.jpeg' -Slug 'hamza' -CropWHXY '672:896:144:102'
-# Rahul: closest to reference framing already -> light zoom-in.
-Convert-TeamPhoto -SourceFile 'Rahul.jpeg' -Slug 'rahul' -CropWHXY '864:1152:48:51'
-# Sneha: already the tightest crop of the three -> minimal additional crop.
-Convert-TeamPhoto -SourceFile 'Sneha.jpeg' -Slug 'sneha' -CropWHXY '936:1248:12:16'
-
-# ---------------------------------------------------------------------------
 # Brand mark -> assets/img/brand/logo.png (background flood-filled to alpha)
 # ---------------------------------------------------------------------------
 $logoIn = Join-Path $Src 'LOGOHamza.png'
@@ -263,5 +119,5 @@ Invoke-FF @(
     (Join-Path $ImgBrand 'logo.png')
 )
 
-Write-Host "`nDone. Derived assets written to $Out" -ForegroundColor Green
-Write-Host 'Spot-check output before building the site on top of it (see ASSET-INVENTORY.md verification notes).' -ForegroundColor Yellow
+Write-Host "`nDone. Stock and brand assets written to $Out" -ForegroundColor Green
+Write-Host 'Now run: python tools/build-motion-assets.py' -ForegroundColor Yellow

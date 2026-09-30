@@ -4,7 +4,7 @@
 
 Tell the studio's process through footage, not captions. Raw client clips appear as scattered, muted "dailies"; they converge and align as you scroll; colour lands as they become one finished piece; a contrasting format cuts in to prove range; the finished pieces settle into a row of tiles and the mark signs off. On-screen text is one big outlined word per beat, using the studio's own process language (Discovery / Strategy / Edit / Retention / Delivery), plus mono HUD chrome (timecode, beat index).
 
-Assets come only from the confirmed client list; stock (`pixelclip1`, `pixelclip6`) appears only as low-opacity timeline texture under beat 02, never as a card. `Sohail Varca Villa` is used only via the derived clips that already exclude the Airbnb window.
+Assets come only from the confirmed client list; stock (`pixelclip1`, `pixelclip6`) appears only as low-opacity timeline texture under beat 02, never as a card. Every story loop is cut by stage 2 of `tools/build-motion-assets.py` from the derived client clips (never from raw files), so `Sohail Varca Villa` is only ever used with the Airbnb window already excised: `sohail-loop` is 27–36s of the derived clip.
 
 ## Implementation (js/story.js)
 
